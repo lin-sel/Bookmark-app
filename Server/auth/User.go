@@ -9,10 +9,10 @@ import (
 // User define Name, Username, Password
 type User struct {
 	basemodel.Basemodel
-	Name     string `gorm:"type:varchar(30);"`
-	Username string `gorm:"type:varchar(25);unique_index"`
-	Password string `gorm:"type:varchar(70)"`
-	Bookmark *[]bookmark.Bookmark
+	Name     string               `gorm:"type:varchar(30);"`
+	Username string               `gorm:"type:varchar(25);unique_index"`
+	Password string               `gorm:"type:varchar(70)"`
+	Bookmark *[]bookmark.Bookmark `json:"-"`
 }
 
 // NewUser Return New Object of User

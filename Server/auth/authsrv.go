@@ -55,6 +55,7 @@ func (auth *Authsrv) Login(user *User) error {
 		return errors.New("Invalid User")
 	}
 	uow.Commit()
+	*user = authuser
 	return err
 }
 

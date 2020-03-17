@@ -16,8 +16,8 @@ type Controller struct {
 
 // Response Return As Successfull Login Response.
 type Response struct {
-	Token  string `json:"token"`
-	Status string `json:"status"`
+	User
+	Token string `json:"token"`
 }
 
 var secretKey = []byte("Private_Key")
@@ -109,14 +109,14 @@ func (authcntrol *Controller) login(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(err.Error())
 		return
 	}
-	authcntrol.GetToken(user.Getusername(), &w)
+	authcntrol.GetToken(&user, &w)
 }
 
 // GetToken Return Token
-func (authcntrol *Controller) GetToken(username string, w *http.ResponseWriter) {
+func (authcntrol *Controller) GetToken(user *User, w *http.ResponseWriter) {
 	// Create a claims map
 	claims := jwt.MapClaims{
-		"username": username,
+		"username": user.Getusername(),
 		"IssuedAt": time.Now().Unix(),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -125,5 +125,5 @@ func (authcntrol *Controller) GetToken(username string, w *http.ResponseWriter) 
 		(*w).WriteHeader(http.StatusBadGateway)
 		(*w).Write([]byte(err.Error()))
 	}
-	json.NewEncoder(*w).Encode(Response{Token: tokenString, Status: "Login Successfully"})
+	json.NewEncoder(*w).Encode(Response{Token: tokenString, User: *user})
 }
