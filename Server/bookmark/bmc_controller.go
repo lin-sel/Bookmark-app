@@ -7,19 +7,13 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
+	"github.com/lin-sel/bookmark-app/web"
 )
 
 // BMCController struct
 type BMCController struct {
 	srv *BMCService
 }
-
-// // NewBMCController Return Control
-// func NewBMCController(repo *BMCService) *BMCController {
-// 	return &BMCController{
-// 		srv: repo,
-// 	}
-// }
 
 // CategoryRgstr Register All Endpoint to Router
 func (cntrlr *Controller) CategoryRgstr(s *mux.Router) {
@@ -38,15 +32,17 @@ func (cntrlr *Controller) GetAllCategory(w http.ResponseWriter, r *http.Request)
 	id := mux.Vars(r)["userid"]
 	uid, err := parseID(id)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(err.Error())
+		// w.WriteHeader(http.StatusBadRequest)
+		// json.NewEncoder(w).Encode(err.Error())
+		web.HeaderWrite(&w, http.StatusBadRequest, err)
 		return
 	}
 	categories := []Category{}
 	err = cntrlr.bmcsrv.GetAllBMCategory(*uid, &categories)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(err.Error())
+		// w.WriteHeader(http.StatusInternalServerError)
+		// json.NewEncoder(w).Encode(err.Error())
+		web.HeaderWrite(&w, http.StatusInternalServerError, err)
 		return
 	}
 	json.NewEncoder(w).Encode(categories)
@@ -58,22 +54,25 @@ func (cntrlr *Controller) GetCategoryByID(w http.ResponseWriter, r *http.Request
 	param := mux.Vars(r)
 	uid, err := parseID(param["userid"])
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(err.Error())
+		// w.WriteHeader(http.StatusBadRequest)
+		// json.NewEncoder(w).Encode(err.Error())
+		web.HeaderWrite(&w, http.StatusBadRequest, err)
 		return
 	}
 	var cid *uuid.UUID
 	cid, err = parseID(param["id"])
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(err.Error())
+		// w.WriteHeader(http.StatusBadRequest)
+		// json.NewEncoder(w).Encode(err.Error())
+		web.HeaderWrite(&w, http.StatusBadRequest, err)
 		return
 	}
 	categories := []Category{}
 	err = cntrlr.bmcsrv.GetBMCategory(*uid, *cid, &categories)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(err.Error())
+		// w.WriteHeader(http.StatusInternalServerError)
+		// json.NewEncoder(w).Encode(err.Error())
+		web.HeaderWrite(&w, http.StatusInternalServerError, err)
 		return
 	}
 	json.NewEncoder(w).Encode(categories)
@@ -87,8 +86,9 @@ func (cntrlr *Controller) AddCategory(w http.ResponseWriter, r *http.Request) {
 	uid, err := parseID(id)
 	err = r.ParseForm()
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(err.Error())
+		// w.WriteHeader(http.StatusBadRequest)
+		// json.NewEncoder(w).Encode(err.Error())
+		web.HeaderWrite(&w, http.StatusBadRequest, err)
 		return
 	}
 	category := Category{}
@@ -96,8 +96,9 @@ func (cntrlr *Controller) AddCategory(w http.ResponseWriter, r *http.Request) {
 		category.CName = v
 	}
 	if category.GetCategoryName() == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode("category Require")
+		// w.WriteHeader(http.StatusBadRequest)
+		// json.NewEncoder(w).Encode("category Require")
+		web.HeaderWrite(&w, http.StatusBadRequest, errors.New("category Require"))
 		return
 	}
 	category.UserID = *uid
@@ -105,8 +106,9 @@ func (cntrlr *Controller) AddCategory(w http.ResponseWriter, r *http.Request) {
 
 	err = cntrlr.bmcsrv.AddBMCategory(&category)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(err.Error())
+		// w.WriteHeader(http.StatusInternalServerError)
+		// json.NewEncoder(w).Encode(err.Error())
+		web.HeaderWrite(&w, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -122,16 +124,18 @@ func (cntrlr *Controller) UpdateCategory(w http.ResponseWriter, r *http.Request)
 	uid, err := parseID(param["userid"])
 	err = r.ParseForm()
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(err.Error())
+		// w.WriteHeader(http.StatusBadRequest)
+		// json.NewEncoder(w).Encode(err.Error())
+		web.HeaderWrite(&w, http.StatusBadRequest, err)
 		return
 	}
 
 	var id *uuid.UUID
 	id, err = parseID(param["id"])
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode("Invalid Id")
+		// w.WriteHeader(http.StatusBadRequest)
+		// json.NewEncoder(w).Encode("Invalid Id")
+		web.HeaderWrite(&w, http.StatusBadRequest, errors.New("Invalid user ID"))
 		return
 	}
 	category.ID = *id
@@ -139,8 +143,9 @@ func (cntrlr *Controller) UpdateCategory(w http.ResponseWriter, r *http.Request)
 		category.CName = v
 	}
 	if category.GetCategoryName() == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode("category Require")
+		// w.WriteHeader(http.StatusBadRequest)
+		// json.NewEncoder(w).Encode("category Require")
+		web.HeaderWrite(&w, http.StatusBadRequest, errors.New("category Require"))
 		return
 	}
 	category.UserID = *uid
@@ -148,8 +153,9 @@ func (cntrlr *Controller) UpdateCategory(w http.ResponseWriter, r *http.Request)
 
 	err = cntrlr.bmcsrv.UpdateBMCategory(&category)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(err.Error())
+		// w.WriteHeader(http.StatusInternalServerError)
+		// json.NewEncoder(w).Encode(err.Error())
+		web.HeaderWrite(&w, http.StatusInternalServerError, err)
 		return
 	}
 }
@@ -161,23 +167,26 @@ func (cntrlr *Controller) DeleteCategory(w http.ResponseWriter, r *http.Request)
 	uid, err := parseID(param["userid"])
 	err = r.ParseForm()
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(err.Error())
+		// w.WriteHeader(http.StatusBadRequest)
+		// json.NewEncoder(w).Encode(err.Error())
+		web.HeaderWrite(&w, http.StatusBadRequest, err)
 		return
 	}
 
 	var id *uuid.UUID
 	id, err = parseID(param["id"])
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode("Invalid Id")
+		// w.WriteHeader(http.StatusBadRequest)
+		// json.NewEncoder(w).Encode("Invalid Id")
+		web.HeaderWrite(&w, http.StatusBadRequest, errors.New("Invalid ID"))
 		return
 	}
 
 	err = cntrlr.bmcsrv.DeleteBMCategory(*uid, *id)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(err.Error())
+		// w.WriteHeader(http.StatusInternalServerError)
+		// json.NewEncoder(w).Encode(err.Error())
+		web.HeaderWrite(&w, http.StatusInternalServerError, err)
 		return
 	}
 }
@@ -192,9 +201,6 @@ func (cntrlr *Controller) RecentCategory(w http.ResponseWriter, r *http.Request)
 // 	if err != nil {
 // 		return nil, errors.New("Invalid User")
 // 	}
-
-// 	cntrlr.
-
 // }
 
 func parseID(id string) (*uuid.UUID, error) {

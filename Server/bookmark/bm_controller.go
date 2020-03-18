@@ -10,6 +10,7 @@ import (
 	"github.com/dgrijalva/jwt-go/request"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
+	"github.com/lin-sel/bookmark-app/web"
 )
 
 // Controller Structure
@@ -69,8 +70,9 @@ func (cntrolr *Controller) AuthUser(h http.Handler) http.Handler {
 			// w.Write(responseJSON)
 			h.ServeHTTP(w, r)
 		} else {
-			w.WriteHeader(http.StatusForbidden)
-			w.Write([]byte(err.Error()))
+			// w.WriteHeader(http.StatusForbidden)
+			// w.Write([]byte(err.Error()))
+			web.HeaderWrite(&w, http.StatusForbidden, err)
 		}
 	})
 }
@@ -81,15 +83,17 @@ func (cntrolr *Controller) GetAllBookmark(w http.ResponseWriter, r *http.Request
 	id := mux.Vars(r)["userid"]
 	uid, err := parseID(id)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(err.Error())
+		// w.WriteHeader(http.StatusBadRequest)
+		// json.NewEncoder(w).Encode(err.Error())
+		web.HeaderWrite(&w, http.StatusBadRequest, err)
 		return
 	}
 	bookmarks := []Bookmark{}
 	err = cntrolr.bmsrv.GetAllBookmark(*uid, &bookmarks)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(err.Error())
+		// w.WriteHeader(http.StatusInternalServerError)
+		// json.NewEncoder(w).Encode(err.Error())
+		web.HeaderWrite(&w, http.StatusInternalServerError, err)
 		return
 	}
 	json.NewEncoder(w).Encode(bookmarks)
@@ -101,22 +105,25 @@ func (cntrolr *Controller) GetBookmarkByID(w http.ResponseWriter, r *http.Reques
 	param := mux.Vars(r)
 	uid, err := parseID(param["userid"])
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(err.Error())
+		// w.WriteHeader(http.StatusBadRequest)
+		// json.NewEncoder(w).Encode(err.Error())
+		web.HeaderWrite(&w, http.StatusBadRequest, err)
 		return
 	}
 	var bid *uuid.UUID
 	bid, err = parseID(param["id"])
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(err.Error())
+		// w.WriteHeader(http.StatusBadRequest)
+		// json.NewEncoder(w).Encode(err.Error())
+		web.HeaderWrite(&w, http.StatusBadRequest, err)
 		return
 	}
 	bookmark := []Bookmark{}
 	err = cntrolr.bmsrv.GetBookmark(*uid, *bid, &bookmark)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(err.Error())
+		// w.WriteHeader(http.StatusInternalServerError)
+		// json.NewEncoder(w).Encode(err.Error())
+		web.HeaderWrite(&w, http.StatusInternalServerError, err)
 		return
 	}
 	json.NewEncoder(w).Encode(bookmark)
@@ -128,22 +135,25 @@ func (cntrolr *Controller) GetBookmarkByCategory(w http.ResponseWriter, r *http.
 	param := mux.Vars(r)
 	uid, err := parseID(param["userid"])
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(err.Error())
+		// w.WriteHeader(http.StatusBadRequest)
+		// json.NewEncoder(w).Encode(err.Error())
+		web.HeaderWrite(&w, http.StatusBadRequest, err)
 		return
 	}
 	var bid *uuid.UUID
 	bid, err = parseID(param["id"])
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(err.Error())
+		// w.WriteHeader(http.StatusBadRequest)
+		// json.NewEncoder(w).Encode(err.Error())
+		web.HeaderWrite(&w, http.StatusBadRequest, err)
 		return
 	}
 	bookmarks := []Bookmark{}
 	err = cntrolr.bmsrv.GetBookmarkByCategory(*uid, *bid, &bookmarks)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(err.Error())
+		// w.WriteHeader(http.StatusInternalServerError)
+		// json.NewEncoder(w).Encode(err.Error())
+		web.HeaderWrite(&w, http.StatusInternalServerError, err)
 		return
 	}
 	json.NewEncoder(w).Encode(bookmarks)
@@ -157,24 +167,27 @@ func (cntrolr *Controller) UpdateBookmark(w http.ResponseWriter, r *http.Request
 	uid, err := parseID(param["userid"])
 	err = parseForm(&bookmark, r)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(err.Error())
+		// w.WriteHeader(http.StatusBadRequest)
+		// json.NewEncoder(w).Encode(err.Error())
+		web.HeaderWrite(&w, http.StatusBadRequest, err)
 		return
 	}
 	bookmark.UserID = *uid
 	var id *uuid.UUID
 	id, err = parseID(param["id"])
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode("Invalid Id")
+		// w.WriteHeader(http.StatusBadRequest)
+		// json.NewEncoder(w).Encode("Invalid Id")
+		web.HeaderWrite(&w, http.StatusBadRequest, errors.New("Invalid ID"))
 		return
 	}
 	bookmark.ID = *id
 
 	err = cntrolr.bmsrv.UpdateBookmark(&bookmark)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(err.Error())
+		// w.WriteHeader(http.StatusInternalServerError)
+		// json.NewEncoder(w).Encode(err.Error())
+		web.HeaderWrite(&w, http.StatusInternalServerError, err)
 		return
 	}
 }
@@ -186,23 +199,26 @@ func (cntrolr *Controller) DeleteBookmark(w http.ResponseWriter, r *http.Request
 	uid, err := parseID(param["userid"])
 	err = r.ParseForm()
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(err.Error())
+		// w.WriteHeader(http.StatusBadRequest)
+		// json.NewEncoder(w).Encode(err.Error())
+		web.HeaderWrite(&w, http.StatusBadRequest, err)
 		return
 	}
 
 	var id *uuid.UUID
 	id, err = parseID(param["id"])
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode("Invalid Id")
+		// w.WriteHeader(http.StatusBadRequest)
+		// json.NewEncoder(w).Encode("Invalid Id")
+		web.HeaderWrite(&w, http.StatusBadRequest, errors.New("Invalid ID"))
 		return
 	}
 
 	err = cntrolr.bmsrv.DeleteBookmark(*uid, *id)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(err.Error())
+		// w.WriteHeader(http.StatusInternalServerError)
+		// json.NewEncoder(w).Encode(err.Error())
+		web.HeaderWrite(&w, http.StatusInternalServerError, err)
 		return
 	}
 }
@@ -212,23 +228,26 @@ func (cntrolr *Controller) AddBookmark(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	uid, err := parseID(mux.Vars(r)["userid"])
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode("Invalid User ID")
+		// w.WriteHeader(http.StatusBadRequest)
+		// json.NewEncoder(w).Encode("Invalid User ID")
+		web.HeaderWrite(&w, http.StatusBadRequest, errors.New("Invalid User ID"))
 		return
 	}
 	bookmark := Bookmark{}
 	err = parseForm(&bookmark, r)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(err.Error())
+		// w.WriteHeader(http.StatusBadRequest)
+		// json.NewEncoder(w).Encode(err.Error())
+		web.HeaderWrite(&w, http.StatusBadRequest, err)
 		return
 	}
 	bookmark.UserID = *uid
 	bookmark.ID = GetUUID()
 	err = cntrolr.bmsrv.AddBookmark(&bookmark)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(err.Error())
+		// w.WriteHeader(http.StatusInternalServerError)
+		// json.NewEncoder(w).Encode(err.Error())
+		web.HeaderWrite(&w, http.StatusInternalServerError, err)
 		return
 	}
 	json.NewEncoder(w).Encode(bookmark.ID)

@@ -2,11 +2,13 @@ package auth
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
+	"github.com/lin-sel/bookmark-app/web"
 )
 
 // Controller Structure
@@ -39,8 +41,9 @@ func (authcntrol *Controller) registerUser(w http.ResponseWriter, r *http.Reques
 	w.Header().Set("Content-Type", "application/json")
 	err := r.ParseForm()
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode("Invalid Request")
+		// w.WriteHeader(http.StatusBadRequest)
+		// json.NewEncoder(w).Encode("Invalid Request")
+		web.HeaderWrite(w, http.StatusBadRequest, errors.New("Invalid Request"))
 		return
 	}
 	user := User{}
@@ -49,16 +52,18 @@ func (authcntrol *Controller) registerUser(w http.ResponseWriter, r *http.Reques
 		user.Name = v
 	}
 	if len(user.Getname()) <= 0 {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode("name required")
+		// w.WriteHeader(http.StatusBadRequest)
+		// json.NewEncoder(w).Encode("name required")
+		web.HeaderWrite(w, http.StatusBadRequest, errors.New("name required"))
 		return
 	}
 	if v := r.PostFormValue("username"); len(v) > 0 {
 		user.Username = v
 	}
 	if len(user.Getusername()) <= 0 {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode("username required")
+		// w.WriteHeader(http.StatusBadRequest)
+		// json.NewEncoder(w).Encode("username required")
+		web.HeaderWrite(w, http.StatusBadRequest, errors.New("username required"))
 		return
 	}
 	if v := r.PostFormValue("password"); len(v) > 0 {
@@ -66,8 +71,9 @@ func (authcntrol *Controller) registerUser(w http.ResponseWriter, r *http.Reques
 	}
 
 	if len(user.Getpassword()) <= 0 {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode("password required")
+		// w.WriteHeader(http.StatusBadRequest)
+		// json.NewEncoder(w).Encode("password required")
+		web.HeaderWrite(w, http.StatusBadRequest, errors.New("password required"))
 		return
 	}
 
@@ -77,8 +83,9 @@ func (authcntrol *Controller) registerUser(w http.ResponseWriter, r *http.Reques
 	err = authcntrol.authsrv.Register(&user)
 
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(err.Error())
+		// w.WriteHeader(http.StatusInternalServerError)
+		// json.NewEncoder(w).Encode(err.Error())
+		web.HeaderWrite(w, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -90,8 +97,9 @@ func (authcntrol *Controller) login(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	err := r.ParseForm()
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode("Invalid Request")
+		// w.WriteHeader(http.StatusBadRequest)
+		// json.NewEncoder(w).Encode("Invalid Request")
+		web.HeaderWrite(w, http.StatusBadRequest, errors.New("Invalid Request"))
 		return
 	}
 	user := User{}
@@ -105,8 +113,9 @@ func (authcntrol *Controller) login(w http.ResponseWriter, r *http.Request) {
 	err = authcntrol.authsrv.Login(&user)
 
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(err.Error())
+		// w.WriteHeader(http.StatusBadRequest)
+		// json.NewEncoder(w).Encode(err.Error())
+		web.HeaderWrite(w, http.StatusBadRequest, err)
 		return
 	}
 	authcntrol.GetToken(&user, &w)
@@ -122,8 +131,10 @@ func (authcntrol *Controller) GetToken(user *User, w *http.ResponseWriter) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString(secretKey)
 	if err != nil {
-		(*w).WriteHeader(http.StatusBadGateway)
-		(*w).Write([]byte(err.Error()))
+		// (*w).WriteHeader(http.StatusBadGateway)
+		// (*w).Write([]byte(err.Error()))
+		web.HeaderWrite(w, http.StatusBadRequest, err)
+		return
 	}
 	json.NewEncoder(*w).Encode(Response{Token: tokenString, User: *user})
 }
