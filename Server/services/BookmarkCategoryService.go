@@ -1,6 +1,8 @@
 package services
 
 import (
+	"fmt"
+
 	"github.com/jinzhu/gorm"
 	"github.com/lin-sel/bookmark-app/models"
 	"github.com/lin-sel/bookmark-app/repository"
@@ -74,6 +76,7 @@ func (bm *BookmarkCategoryService) GetBookmarkCategory(uid, cid uuid.UUID, categ
 
 // GetAllBookmarkCategory From database
 func (bm *BookmarkCategoryService) GetAllBookmarkCategory(uid uuid.UUID, categories *[]models.Category) error {
+	fmt.Println("Get All")
 	uow := repository.NewUnitOfWork(bm.DB, true)
 	err := bm.Repository.GetAll(uow, uid, categories, []string{})
 	if err != nil {

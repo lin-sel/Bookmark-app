@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -32,6 +33,7 @@ func (cntrlr *Controller) GetAllCategory(w http.ResponseWriter, r *http.Request)
 		web.RespondError(&w, err)
 		return
 	}
+	fmt.Println(categories[0].GetCategoryName(), "Called")
 	web.RespondJSON(&w, http.StatusOK, categories)
 }
 
@@ -62,6 +64,7 @@ func (cntrlr *Controller) GetCategoryByID(w http.ResponseWriter, r *http.Request
 func (cntrlr *Controller) AddCategory(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["userid"]
 	uid, err := web.ParseID(id)
+	fmt.Println("Called")
 	// err = r.ParseForm()
 	category := models.Category{}
 	err = web.UnmarshalJSON(r, &category)
@@ -83,7 +86,7 @@ func (cntrlr *Controller) AddCategory(w http.ResponseWriter, r *http.Request) {
 		web.RespondError(&w, err)
 		return
 	}
-
+	fmt.Println(category.GetCategoryID())
 	web.RespondJSON(&w, http.StatusOK, category.GetCategoryID())
 }
 

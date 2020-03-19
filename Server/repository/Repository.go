@@ -45,7 +45,7 @@ func (repo *Repositorysrv) GetAll(ufw *UnitOfWork, uid uuid.UUID, out interface{
 	for _, association := range preloadAssociation {
 		db = db.Preload(association)
 	}
-	return db.Model(out).Find(out, "user_id = ?", uid).Error
+	return db.Model(out).Debug().Find(out, "user_id = ?", uid).Error
 }
 
 // Update Student
