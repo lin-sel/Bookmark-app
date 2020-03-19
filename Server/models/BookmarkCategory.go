@@ -1,8 +1,8 @@
 package models
 
 import (
-	"github.com/google/uuid"
 	"github.com/lin-sel/bookmark-app/web"
+	uuid "github.com/satori/go.uuid"
 )
 
 // Category Structure

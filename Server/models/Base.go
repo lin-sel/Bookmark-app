@@ -3,7 +3,7 @@ package models
 import (
 	"time"
 
-	uuid "github.com/google/uuid"
+	uuid "github.com/satori/go.uuid"
 )
 
 // Basemodel Define ID, createdAt, deletedAt, DeletedAt.

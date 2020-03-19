@@ -8,24 +8,24 @@ import (
 	"github.com/lin-sel/bookmark-app/repository"
 )
 
-// Authsrv Structure
-type Authsrv struct {
+// UserService Structure
+type UserService struct {
 	DB         *gorm.DB
 	Repository *repository.Repositorysrv
 }
 
-// NewAuthsrv Return AuthService
-func NewAuthsrv(db *gorm.DB, repo *repository.Repositorysrv) *Authsrv {
+// NewUserService Return AuthService
+func NewUserService(db *gorm.DB, repo *repository.Repositorysrv) *UserService {
 	db.AutoMigrate(models.User{})
-	return &Authsrv{
+	return &UserService{
 		DB:         db,
 		Repository: repo,
 	}
 }
 
 // Register User
-func (auth *Authsrv) Register(user *models.User) error {
-	uow := repository.NewUnitOfWork(auth.DB, true)
+func (auth *UserService) Register(user *models.User) error {
+	uow := repository.NewUnitOfWork(auth.DB, false)
 	authuser := models.User{}
 	err := auth.Repository.GetByField(uow, user.Getusername(), "username", "", &authuser, []string{})
 	if !authuser.IsEmpty() {
@@ -41,7 +41,7 @@ func (auth *Authsrv) Register(user *models.User) error {
 }
 
 // Login Return Auth User.
-func (auth *Authsrv) Login(user *models.User) error {
+func (auth *UserService) Login(user *models.User) error {
 	uow := repository.NewUnitOfWork(auth.DB, true)
 	authuser := models.User{}
 	err := auth.Repository.GetByField(uow, user.Getusername(), "username", "", &authuser, []string{})
@@ -55,7 +55,7 @@ func (auth *Authsrv) Login(user *models.User) error {
 	if !checkUserCreadential(user, &authuser) {
 		return errors.New("Invalid User")
 	}
-	uow.Commit()
+	// uow.Commit()
 	*user = authuser
 	return err
 }

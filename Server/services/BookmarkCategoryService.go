@@ -1,10 +1,10 @@
 package services
 
 import (
-	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 	"github.com/lin-sel/bookmark-app/models"
 	"github.com/lin-sel/bookmark-app/repository"
+	uuid "github.com/satori/go.uuid"
 )
 
 //BookmarkCategoryService Bookmark Category Service
@@ -56,7 +56,7 @@ func (bm *BookmarkCategoryService) DeleteBookmarkCategory(uid, cid uuid.UUID) er
 		uow.Complete()
 		return err
 	}
-	uow.Commit()
+	// uow.Commit()
 	return err
 }
 
@@ -68,7 +68,7 @@ func (bm *BookmarkCategoryService) GetBookmarkCategory(uid, cid uuid.UUID, categ
 		uow.Complete()
 		return err
 	}
-	uow.Commit()
+	// uow.Commit()
 	return err
 }
 
@@ -80,6 +80,6 @@ func (bm *BookmarkCategoryService) GetAllBookmarkCategory(uid uuid.UUID, categor
 		uow.Complete()
 		return err
 	}
-	uow.Commit()
+	// uow.Commit()
 	return err
 }

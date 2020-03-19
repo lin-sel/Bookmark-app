@@ -62,7 +62,7 @@ func conn() *gorm.DB {
 }
 
 func prepareController(con *gorm.DB, route *mux.Router, repo *repository.Repositorysrv) {
-	authservice := services.NewAuthsrv(con, repo)
+	authservice := services.NewUserService(con, repo)
 	bookmarkcategoryservice := services.NewBookmarkCategoryService(repo, con)
 	bookmarkservice := services.NewBookmarkService(repo, con)
 	authcontroller := controllers.NewUserController(authservice)

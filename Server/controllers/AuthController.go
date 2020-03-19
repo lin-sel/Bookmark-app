@@ -6,9 +6,9 @@ import (
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/dgrijalva/jwt-go/request"
-	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/lin-sel/bookmark-app/web"
+	uuid "github.com/satori/go.uuid"
 )
 
 var secretKey = []byte("Private_Key")

@@ -1,8 +1,8 @@
 package models
 
 import (
-	"github.com/google/uuid"
 	"github.com/lin-sel/bookmark-app/web"
+	uuid "github.com/satori/go.uuid"
 )
 
 // User define Name, Username, Password
@@ -12,6 +12,15 @@ type User struct {
 	Username  string      `gorm:"type:varchar(25);unique_index"`
 	Password  string      `gorm:"type:varchar(70)"`
 	Bookmarks *[]Bookmark `json:"-"`
+}
+
+// NewUserWithID Return user instance with ID
+func NewUserWithID() *User {
+	return &User{
+		Basemodel: Basemodel{
+			ID: web.GetUUID(),
+		},
+	}
 }
 
 // NewUser Return New Object of User

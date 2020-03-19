@@ -5,11 +5,11 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/lin-sel/bookmark-app/models"
 	"github.com/lin-sel/bookmark-app/services"
 	"github.com/lin-sel/bookmark-app/web"
+	uuid "github.com/satori/go.uuid"
 )
 
 // Controller Structure

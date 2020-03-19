@@ -15,7 +15,7 @@ import (
 
 // UserController Structure
 type UserController struct {
-	authsrv *services.Authsrv
+	authsrv *services.UserService
 }
 
 // Response Return As Successfull Login Response.
@@ -27,7 +27,7 @@ type Response struct {
 // var secretKey = []byte("Private_Key")
 
 // NewUserController Return UserController Instance
-func NewUserController(srv *services.Authsrv) *UserController {
+func NewUserController(srv *services.UserService) *UserController {
 	return &UserController{
 		authsrv: srv,
 	}

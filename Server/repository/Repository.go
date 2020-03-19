@@ -3,7 +3,7 @@ package repository
 import (
 	"fmt"
 
-	uuid "github.com/google/uuid"
+	uuid "github.com/satori/go.uuid"
 )
 
 // Repository Struct

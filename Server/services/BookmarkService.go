@@ -1,10 +1,10 @@
 package services
 
 import (
-	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 	"github.com/lin-sel/bookmark-app/models"
 	"github.com/lin-sel/bookmark-app/repository"
+	uuid "github.com/satori/go.uuid"
 )
 
 // BookmarkService Struct
@@ -52,7 +52,7 @@ func (bm *BookmarkService) UpdateBookmark(bookmark *models.Bookmark) error {
 
 // DeleteBookmark to Database
 func (bm *BookmarkService) DeleteBookmark(uid, bid uuid.UUID) error {
-	uow := repository.NewUnitOfWork(bm.DB, true)
+	uow := repository.NewUnitOfWork(bm.DB, false)
 	err := bm.Repository.Delete(uow, uid, bid, models.Bookmark{})
 	if err != nil {
 		uow.Complete()
@@ -70,7 +70,7 @@ func (bm *BookmarkService) GetBookmark(uid, bid uuid.UUID, bookmark *[]models.Bo
 		uow.Complete()
 		return err
 	}
-	uow.Commit()
+	// uow.Commit()
 	return err
 }
 
@@ -82,7 +82,7 @@ func (bm *BookmarkService) GetAllBookmark(uid uuid.UUID, bookmark *[]models.Book
 		uow.Complete()
 		return err
 	}
-	uow.Commit()
+	// uow.Commit()
 	return err
 }
 
@@ -94,6 +94,6 @@ func (bm *BookmarkService) GetBookmarkByCategory(uid, cid uuid.UUID, bookmark *[
 		uow.Complete()
 		return err
 	}
-	uow.Commit()
+	// uow.Commit()
 	return err
 }
