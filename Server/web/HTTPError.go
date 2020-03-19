@@ -6,7 +6,7 @@ type HTTPError struct {
 	ErrorKey   string
 }
 
-func (err *HTTPError) Error() string {
+func (err HTTPError) Error() string {
 	return err.ErrorKey
 }
 
