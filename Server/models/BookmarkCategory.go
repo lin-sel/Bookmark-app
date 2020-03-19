@@ -8,8 +8,8 @@ import (
 // Category Structure
 type Category struct {
 	Basemodel
-	CName  string    `gorm:"type:varchar(100)"`
-	UserID uuid.UUID `gorm:"type:varchar(40);not_null"`
+	CName  string    `gorm:"type:varchar(100)" json:"category"`
+	UserID uuid.UUID `gorm:"type:varchar(40);not_null" json:"-"`
 }
 
 // NewCategory Return Category Object

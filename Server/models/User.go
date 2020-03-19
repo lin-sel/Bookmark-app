@@ -8,9 +8,9 @@ import (
 // User define Name, Username, Password
 type User struct {
 	Basemodel
-	Name      string      `gorm:"type:varchar(30);"`
-	Username  string      `gorm:"type:varchar(25);unique_index"`
-	Password  string      `gorm:"type:varchar(70)"`
+	Name      string      `gorm:"type:varchar(30);" json:"name"`
+	Username  string      `gorm:"type:varchar(25);unique_index" json:"username"`
+	Password  string      `gorm:"type:varchar(70)" json:"password"`
 	Bookmarks *[]Bookmark `json:"-"`
 }
 

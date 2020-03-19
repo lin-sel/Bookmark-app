@@ -8,11 +8,11 @@ import (
 // Bookmark Structure
 type Bookmark struct {
 	Basemodel
-	Label      string    `gorm:"type:varchar(200)"`
-	URL        string    `gorm:"type:varchar(300)"`
-	Tag        string    `gorm:"type:varchar(300)"`
+	Label      string    `gorm:"type:varchar(200)" json:"label"`
+	URL        string    `gorm:"type:varchar(300)" json:"url"`
+	Tag        string    `gorm:"type:varchar(300)" json:"tag"`
 	UserID     uuid.UUID `gorm:"type:varchar(40);not_null" json:"-"`
-	CategoryID uuid.UUID `gorm:"type:varchar(40);not_null"`
+	CategoryID uuid.UUID `gorm:"type:varchar(40);not_null" json:"categoryid"`
 }
 
 // NewBookmark return Bookmark Struct
@@ -25,6 +25,15 @@ func NewBookmark(label string, url string, tag string, userid uuid.UUID) *Bookma
 		Tag:    tag,
 		URL:    url,
 		UserID: userid,
+	}
+}
+
+// NewBookmarkWithID return New Bookmark Instance with ID
+func NewBookmarkWithID() *Bookmark {
+	return &Bookmark{
+		Basemodel: Basemodel{
+			ID: web.GetUUID(),
+		},
 	}
 }
 
