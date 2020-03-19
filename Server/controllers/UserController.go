@@ -43,7 +43,7 @@ func (authcntrol *UserController) registerUser(w http.ResponseWriter, r *http.Re
 	w.Header().Set("Content-Type", "application/json")
 	err := r.ParseForm()
 	if err != nil {
-		web.WriteErrorResponse(&w, web.NewHTTPError("Invalid Request", http.StatusBadRequest))
+		web.RespondError(&w, web.NewValidationError("Form Parse", map[string]string{"error": "Data can't handler"}))
 		return
 	}
 	user := models.User{}
@@ -52,14 +52,14 @@ func (authcntrol *UserController) registerUser(w http.ResponseWriter, r *http.Re
 		user.Name = v
 	}
 	if len(user.Getname()) <= 0 {
-		web.WriteErrorResponse(&w, web.NewHTTPError("name Required", http.StatusBadRequest))
+		web.RespondError(&w, web.NewValidationError("require", map[string]string{"error": "name Required"}))
 		return
 	}
 	if v := r.PostFormValue("username"); len(v) > 0 {
 		user.Username = v
 	}
 	if len(user.Getusername()) <= 0 {
-		web.WriteErrorResponse(&w, web.NewHTTPError("username Required", http.StatusBadRequest))
+		web.RespondError(&w, web.NewValidationError("require", map[string]string{"error": "username Required"}))
 		return
 	}
 	if v := r.PostFormValue("password"); len(v) > 0 {
@@ -67,7 +67,7 @@ func (authcntrol *UserController) registerUser(w http.ResponseWriter, r *http.Re
 	}
 
 	if len(user.Getpassword()) <= 0 {
-		web.WriteErrorResponse(&w, web.NewHTTPError("password required", http.StatusBadRequest))
+		web.RespondError(&w, web.NewValidationError("require", map[string]string{"error": "password Required"}))
 		return
 	}
 
@@ -77,8 +77,7 @@ func (authcntrol *UserController) registerUser(w http.ResponseWriter, r *http.Re
 	err = authcntrol.authsrv.Register(&user)
 
 	if err != nil {
-		web.WriteErrorResponse(&w, web.NewHTTPError(err.Error(), http.StatusInternalServerError))
-
+		web.RespondError(&w, err)
 		return
 	}
 
@@ -90,7 +89,7 @@ func (authcntrol *UserController) login(w http.ResponseWriter, r *http.Request) 
 	w.Header().Set("Content-Type", "application/json")
 	err := r.ParseForm()
 	if err != nil {
-		web.WriteErrorResponse(&w, web.NewHTTPError("Invalid Request", http.StatusBadRequest))
+		web.RespondError(&w, web.NewValidationError("Form Parse", map[string]string{"error": "Data can't Handle"}))
 		return
 	}
 	user := models.User{}
@@ -104,8 +103,7 @@ func (authcntrol *UserController) login(w http.ResponseWriter, r *http.Request) 
 	err = authcntrol.authsrv.Login(&user)
 
 	if err != nil {
-		web.WriteErrorResponse(&w, web.NewHTTPError(err.Error(), http.StatusBadRequest))
-
+		web.RespondError(&w, web.NewValidationError("error", map[string]string{"msg": err.Error()}))
 		return
 	}
 	authcntrol.GetToken(&user, &w)
@@ -123,7 +121,7 @@ func (authcntrol *UserController) GetToken(user *models.User, w *http.ResponseWr
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString(secretKey)
 	if err != nil {
-		web.WriteErrorResponse(w, web.NewHTTPError(err.Error(), http.StatusBadRequest))
+		web.RespondError(w, web.NewValidationError("error", map[string]string{"msg": err.Error()}))
 		return
 	}
 	json.NewEncoder(*w).Encode(Response{Token: tokenString, User: *user})

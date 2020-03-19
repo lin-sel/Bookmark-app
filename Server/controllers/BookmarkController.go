@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"encoding/json"
 	"errors"
 	"net/http"
 
@@ -45,16 +44,17 @@ func (cntrolr *Controller) GetAllBookmark(w http.ResponseWriter, r *http.Request
 	id := mux.Vars(r)["userid"]
 	uid, err := web.ParseID(id)
 	if err != nil {
-		web.WriteErrorResponse(&w, web.NewHTTPError(err.Error(), http.StatusBadRequest))
+		// web.WriteErrorResponse(&w, web.NewHTTPError(err.Error(), http.StatusBadRequest))
+		web.RespondError(&w, web.NewValidationError("User ID", map[string]string{"error": "Invalid User ID"}))
 		return
 	}
 	bookmarks := []models.Bookmark{}
 	err = cntrolr.bmsrv.GetAllBookmark(*uid, &bookmarks)
 	if err != nil {
-		web.WriteErrorResponse(&w, web.NewHTTPError(err.Error(), http.StatusInternalServerError))
+		web.RespondError(&w, err)
 		return
 	}
-	json.NewEncoder(w).Encode(bookmarks)
+	web.RespondJSON(&w, http.StatusOK, bookmarks)
 }
 
 // GetBookmarkByID Return Bookmark of Given ID
@@ -63,22 +63,23 @@ func (cntrolr *Controller) GetBookmarkByID(w http.ResponseWriter, r *http.Reques
 	param := mux.Vars(r)
 	uid, err := web.ParseID(param["userid"])
 	if err != nil {
-		web.WriteErrorResponse(&w, web.NewHTTPError(err.Error(), http.StatusBadRequest))
+		// web.WriteErrorResponse(&w, web.NewHTTPError(err.Error(), http.StatusBadRequest))
+		web.RespondError(&w, web.NewValidationError("User ID", map[string]string{"error": "Invalid User ID"}))
 		return
 	}
 	var bid *uuid.UUID
 	bid, err = web.ParseID(param["bookmarkid"])
 	if err != nil {
-		web.WriteErrorResponse(&w, web.NewHTTPError(err.Error(), http.StatusBadRequest))
+		web.RespondError(&w, web.NewValidationError("error", map[string]string{"msg": err.Error()}))
 		return
 	}
 	bookmark := []models.Bookmark{}
 	err = cntrolr.bmsrv.GetBookmark(*uid, *bid, &bookmark)
 	if err != nil {
-		web.WriteErrorResponse(&w, web.NewHTTPError(err.Error(), http.StatusInternalServerError))
+		web.RespondError(&w, err)
 		return
 	}
-	json.NewEncoder(w).Encode(bookmark)
+	web.RespondJSON(&w, http.StatusOK, bookmark)
 }
 
 //GetBookmarkByCategory Return Bookmark By Category
@@ -87,22 +88,22 @@ func (cntrolr *Controller) GetBookmarkByCategory(w http.ResponseWriter, r *http.
 	param := mux.Vars(r)
 	uid, err := web.ParseID(param["userid"])
 	if err != nil {
-		web.WriteErrorResponse(&w, web.NewHTTPError(err.Error(), http.StatusBadRequest))
+		web.RespondError(&w, web.NewValidationError("User ID", map[string]string{"error": "Invalid User ID"}))
 		return
 	}
 	var bid *uuid.UUID
 	bid, err = web.ParseID(param["bookmarkid"])
 	if err != nil {
-		web.WriteErrorResponse(&w, web.NewHTTPError(err.Error(), http.StatusBadRequest))
+		web.RespondError(&w, web.NewValidationError("error", map[string]string{"msg": err.Error()}))
 		return
 	}
 	bookmarks := []models.Bookmark{}
 	err = cntrolr.bmsrv.GetBookmarkByCategory(*uid, *bid, &bookmarks)
 	if err != nil {
-		web.WriteErrorResponse(&w, web.NewHTTPError(err.Error(), http.StatusInternalServerError))
+		web.RespondError(&w, err)
 		return
 	}
-	json.NewEncoder(w).Encode(bookmarks)
+	web.RespondJSON(&w, http.StatusOK, bookmarks)
 }
 
 // UpdateBookmark Update Bookmark
@@ -113,21 +114,21 @@ func (cntrolr *Controller) UpdateBookmark(w http.ResponseWriter, r *http.Request
 	uid, err := web.ParseID(param["userid"])
 	err = parseForm(&bookmark, r)
 	if err != nil {
-		web.WriteErrorResponse(&w, web.NewHTTPError(err.Error(), http.StatusBadRequest))
+		web.RespondError(&w, web.NewValidationError("error", map[string]string{"msg": err.Error()}))
 		return
 	}
 	bookmark.UserID = *uid
 	var id *uuid.UUID
 	id, err = web.ParseID(param["bookmarkid"])
 	if err != nil {
-		web.WriteErrorResponse(&w, web.NewHTTPError("Invalid ID", http.StatusBadRequest))
+		web.RespondError(&w, web.NewValidationError("error", map[string]string{"msg": err.Error()}))
 		return
 	}
 	bookmark.ID = *id
 
 	err = cntrolr.bmsrv.UpdateBookmark(&bookmark)
 	if err != nil {
-		web.WriteErrorResponse(&w, web.NewHTTPError(err.Error(), http.StatusInternalServerError))
+		web.RespondError(&w, err)
 		return
 	}
 }
@@ -139,20 +140,20 @@ func (cntrolr *Controller) DeleteBookmark(w http.ResponseWriter, r *http.Request
 	uid, err := web.ParseID(param["userid"])
 	err = r.ParseForm()
 	if err != nil {
-		web.WriteErrorResponse(&w, web.NewHTTPError(err.Error(), http.StatusBadRequest))
+		web.RespondError(&w, web.NewValidationError("error", map[string]string{"msg": err.Error()}))
 		return
 	}
 
 	var id *uuid.UUID
 	id, err = web.ParseID(param["bookmarkid"])
 	if err != nil {
-		web.WriteErrorResponse(&w, web.NewHTTPError("Invalid ID", http.StatusBadRequest))
+		web.RespondError(&w, web.NewValidationError("error", map[string]string{"msg": err.Error()}))
 		return
 	}
 
 	err = cntrolr.bmsrv.DeleteBookmark(*uid, *id)
 	if err != nil {
-		web.WriteErrorResponse(&w, web.NewHTTPError(err.Error(), http.StatusInternalServerError))
+		web.RespondError(&w, err)
 		return
 	}
 }
@@ -162,23 +163,23 @@ func (cntrolr *Controller) AddBookmark(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	uid, err := web.ParseID(mux.Vars(r)["userid"])
 	if err != nil {
-		web.WriteErrorResponse(&w, web.NewHTTPError("Invalid User ID", http.StatusBadRequest))
+		web.RespondError(&w, web.NewValidationError("User ID", map[string]string{"error": "Invalid User ID"}))
 		return
 	}
 	bookmark := models.Bookmark{}
 	err = parseForm(&bookmark, r)
 	if err != nil {
-		web.WriteErrorResponse(&w, web.NewHTTPError(err.Error(), http.StatusBadRequest))
+		web.RespondError(&w, web.NewValidationError("error", map[string]string{"msg": err.Error()}))
 		return
 	}
 	bookmark.UserID = *uid
 	bookmark.ID = web.GetUUID()
 	err = cntrolr.bmsrv.AddBookmark(&bookmark)
 	if err != nil {
-		web.WriteErrorResponse(&w, web.NewHTTPError(err.Error(), http.StatusInternalServerError))
+		web.RespondError(&w, err)
 		return
 	}
-	json.NewEncoder(w).Encode(bookmark.ID)
+	web.RespondJSON(&w, http.StatusOK, bookmark.ID)
 }
 
 func parseForm(bookmark *models.Bookmark, r *http.Request) error {

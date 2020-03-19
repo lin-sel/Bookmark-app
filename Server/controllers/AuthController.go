@@ -27,7 +27,7 @@ func (cntrolr *Controller) AuthUser(h http.Handler) http.Handler {
 			return secretKey, nil
 		})
 		if err != nil {
-			web.WriteErrorResponse(&w, web.NewHTTPError("Access Denied.", http.StatusForbidden))
+			web.RespondError(&w, web.NewHTTPError("Access Denied.", http.StatusForbidden))
 			return
 		}
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
@@ -42,27 +42,27 @@ func (cntrolr *Controller) AuthUser(h http.Handler) http.Handler {
 			var err error
 			apiuserid, err = web.ParseID(mux.Vars(r)["userid"])
 			if err != nil {
-				web.WriteErrorResponse(&w, web.NewHTTPError(err.Error(), http.StatusForbidden))
+				web.RespondError(&w, web.NewHTTPError(err.Error(), http.StatusForbidden))
 				return
 			}
 			id, er := claims["userID"].(string)
 			if !er {
-				web.WriteErrorResponse(&w, web.NewHTTPError("nil", http.StatusForbidden))
+				web.RespondError(&w, web.NewHTTPError("nil", http.StatusForbidden))
 				return
 			}
 			userid, err = web.ParseID(id)
 			if err != nil {
-				web.WriteErrorResponse(&w, web.NewHTTPError(err.Error(), http.StatusForbidden))
+				web.RespondError(&w, web.NewHTTPError(err.Error(), http.StatusForbidden))
 				return
 			}
 
 			if *userid != *apiuserid {
-				web.WriteErrorResponse(&w, web.NewHTTPError("Access Denied.", http.StatusForbidden))
+				web.RespondError(&w, web.NewHTTPError("Access Denied.", http.StatusForbidden))
 				return
 			}
 			h.ServeHTTP(w, r)
 		} else {
-			web.WriteErrorResponse(&w, web.NewHTTPError(err.Error(), http.StatusForbidden))
+			web.RespondError(&w, web.NewHTTPError(err.Error(), http.StatusForbidden))
 		}
 	})
 }
