@@ -9,7 +9,7 @@ type ValidationError struct {
 }
 
 func (verror ValidationError) Error() string {
-	return fmt.Sprintf("Error: [%s - %s]", verror.ErrorKey, verror.Errors)
+	return fmt.Sprintf("%s", verror.Errors)
 }
 
 // NewValidationError Return Instance of ValidationError.
