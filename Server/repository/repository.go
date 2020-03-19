@@ -65,7 +65,7 @@ func (repo *Repositorysrv) GetByField(ufw *UnitOfWork, value interface{}, fieldn
 		db = db.Preload(association)
 	}
 	if uid == "" {
-		return db.Model(out).First(out, fmt.Sprintf("%s = ?", fieldname), value).Error
+		return db.Model(out).Debug().First(out, fmt.Sprintf("%s = ?", fieldname), value).Error
 	}
 	return db.Model(out).First(out, fmt.Sprintf("%s = ? and user_id = ?", fieldname), value, uid).Error
 }

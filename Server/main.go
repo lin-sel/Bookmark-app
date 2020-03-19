@@ -13,24 +13,16 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"github.com/lin-sel/bookmark-app/auth"
-	"github.com/lin-sel/bookmark-app/bookmark"
+	"github.com/lin-sel/bookmark-app/controllers"
 	"github.com/lin-sel/bookmark-app/repository"
+	"github.com/lin-sel/bookmark-app/services"
 )
 
 func main() {
 	con := conn()
 	route := mux.NewRouter()
 	repo := repository.NewRepository()
-	srvs := auth.NewAuthsrv(con, repo)
-	control := auth.NewAuthController(srvs)
-	control.RouterRgstr(route)
-	srvs1 := bookmark.NewBMCService(repo, con)
-	// control1 := bookmark.NewBMCController(srvs1)
-	// control1.RouterRgstr(route)
-	srvs2 := bookmark.NewBMService(repo, con)
-	control2 := bookmark.NewController(srvs2, srvs1)
-	control2.RouterRegstr(route)
+	prepareController(con, route, repo)
 	headers := handlers.AllowedHeaders([]string{"Content-Type"})
 	methods := handlers.AllowedMethods([]string{"POST", "PUT", "GET", "DELETE"})
 	origin := handlers.AllowedOrigins([]string{"*"})
@@ -67,4 +59,14 @@ func conn() *gorm.DB {
 		fmt.Println(err)
 	}
 	return con
+}
+
+func prepareController(con *gorm.DB, route *mux.Router, repo *repository.Repositorysrv) {
+	authservice := services.NewAuthsrv(con, repo)
+	bookmarkcategoryservice := services.NewBookmarkCategoryService(repo, con)
+	bookmarkservice := services.NewBookmarkService(repo, con)
+	authcontroller := controllers.NewUserController(authservice)
+	bookmarkcontroller := controllers.NewController(bookmarkservice, bookmarkcategoryservice)
+	authcontroller.RouterRgstr(route)
+	bookmarkcontroller.RouterRegstr(route)
 }

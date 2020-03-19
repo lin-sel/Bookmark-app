@@ -1,12 +1,19 @@
 package web
 
-import (
-	"encoding/json"
-	"net/http"
-)
+// HTTPError Represent Send Back as Response
+type HTTPError struct {
+	HTTPStatus int
+	ErrorKey   string
+}
 
-// HeaderWrite write error to Header
-func HeaderWrite(w *http.ResponseWriter, status int, err error) {
-	(*w).WriteHeader(status)
-	json.NewEncoder(*w).Encode(err.Error())
+func (err *HTTPError) Error() string {
+	return err.ErrorKey
+}
+
+// NewHTTPError return New Instance of HTTPError
+func NewHTTPError(err string, statuscode int) HTTPError {
+	return HTTPError{
+		HTTPStatus: statuscode,
+		ErrorKey:   err,
+	}
 }
