@@ -20,7 +20,6 @@ func (cntrlr *Controller) CategoryRgstr(s *mux.Router) {
 
 // GetAllCategory return All Category Of User
 func (cntrlr *Controller) GetAllCategory(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
 	id := mux.Vars(r)["userid"]
 	uid, err := web.ParseID(id)
 	if err != nil {
@@ -38,7 +37,6 @@ func (cntrlr *Controller) GetAllCategory(w http.ResponseWriter, r *http.Request)
 
 // GetCategoryByID return All Category Of User
 func (cntrlr *Controller) GetCategoryByID(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
 	param := mux.Vars(r)
 	uid, err := web.ParseID(param["userid"])
 	if err != nil {
@@ -62,18 +60,18 @@ func (cntrlr *Controller) GetCategoryByID(w http.ResponseWriter, r *http.Request
 
 // AddCategory return All Category Of User
 func (cntrlr *Controller) AddCategory(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
 	id := mux.Vars(r)["userid"]
 	uid, err := web.ParseID(id)
-	err = r.ParseForm()
+	// err = r.ParseForm()
+	category := models.Category{}
+	err = web.UnmarshalJSON(r, &category)
 	if err != nil {
 		web.RespondError(&w, web.NewValidationError("Form Parse", map[string]string{"error": "data can't handle"}))
 		return
 	}
-	category := models.Category{}
-	if v := r.PostFormValue("category"); len(v) > 0 {
-		category.CName = v
-	}
+	// if v := r.PostFormValue("category"); len(v) > 0 {
+	// 	category.CName = v
+	// }
 	if category.GetCategoryName() == "" {
 		web.RespondError(&w, web.NewValidationError("Require", map[string]string{"error": "Category Name Required"}))
 		return
@@ -91,12 +89,10 @@ func (cntrlr *Controller) AddCategory(w http.ResponseWriter, r *http.Request) {
 
 // UpdateCategory Update Category
 func (cntrlr *Controller) UpdateCategory(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
 	category := models.Category{}
 	param := mux.Vars(r)
 
 	uid, err := web.ParseID(param["userid"])
-	err = r.ParseForm()
 	if err != nil {
 		web.RespondError(&w, web.NewValidationError("Form Parse", map[string]string{"error": "data can't handle"}))
 		return
@@ -109,9 +105,14 @@ func (cntrlr *Controller) UpdateCategory(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	category.ID = *id
-	if v := r.PostFormValue("category"); len(v) > 0 {
-		category.CName = v
+	err = web.UnmarshalJSON(r, &category)
+	if err != nil {
+		web.RespondError(&w, web.NewValidationError("Error", map[string]string{"msg": "Data can't handle"}))
+		return
 	}
+	// if v := r.PostFormValue("category"); len(v) > 0 {
+	// 	category.CName = v
+	// }
 	if category.GetCategoryName() == "" {
 		web.RespondError(&w, web.NewValidationError("require", map[string]string{"error": "Category ID Required"}))
 		return
@@ -126,10 +127,8 @@ func (cntrlr *Controller) UpdateCategory(w http.ResponseWriter, r *http.Request)
 
 // DeleteCategory Delete Category By ID
 func (cntrlr *Controller) DeleteCategory(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
 	param := mux.Vars(r)
 	uid, err := web.ParseID(param["userid"])
-	err = r.ParseForm()
 	if err != nil {
 		web.RespondError(&w, web.NewValidationError("User ID", map[string]string{"error": err.Error()}))
 		return

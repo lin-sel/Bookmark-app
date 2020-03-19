@@ -40,7 +40,6 @@ func (cntrolr *Controller) RouterRegstr(r *mux.Router) {
 
 // GetAllBookmark Return All Bookmark By UserID
 func (cntrolr *Controller) GetAllBookmark(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
 	id := mux.Vars(r)["userid"]
 	uid, err := web.ParseID(id)
 	if err != nil {
@@ -59,7 +58,6 @@ func (cntrolr *Controller) GetAllBookmark(w http.ResponseWriter, r *http.Request
 
 // GetBookmarkByID Return Bookmark of Given ID
 func (cntrolr *Controller) GetBookmarkByID(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
 	param := mux.Vars(r)
 	uid, err := web.ParseID(param["userid"])
 	if err != nil {
@@ -84,7 +82,6 @@ func (cntrolr *Controller) GetBookmarkByID(w http.ResponseWriter, r *http.Reques
 
 //GetBookmarkByCategory Return Bookmark By Category
 func (cntrolr *Controller) GetBookmarkByCategory(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
 	param := mux.Vars(r)
 	uid, err := web.ParseID(param["userid"])
 	if err != nil {
@@ -108,11 +105,11 @@ func (cntrolr *Controller) GetBookmarkByCategory(w http.ResponseWriter, r *http.
 
 // UpdateBookmark Update Bookmark
 func (cntrolr *Controller) UpdateBookmark(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
 	param := mux.Vars(r)
 	bookmark := models.Bookmark{}
 	uid, err := web.ParseID(param["userid"])
-	err = parseForm(&bookmark, r)
+	// err = parseForm(&bookmark, r)
+	err = web.UnmarshalJSON(r, &bookmark)
 	if err != nil {
 		web.RespondError(&w, web.NewValidationError("error", map[string]string{"msg": err.Error()}))
 		return
@@ -135,10 +132,8 @@ func (cntrolr *Controller) UpdateBookmark(w http.ResponseWriter, r *http.Request
 
 // DeleteBookmark By ID
 func (cntrolr *Controller) DeleteBookmark(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
 	param := mux.Vars(r)
 	uid, err := web.ParseID(param["userid"])
-	err = r.ParseForm()
 	if err != nil {
 		web.RespondError(&w, web.NewValidationError("error", map[string]string{"msg": err.Error()}))
 		return
@@ -166,15 +161,16 @@ func (cntrolr *Controller) AddBookmark(w http.ResponseWriter, r *http.Request) {
 		web.RespondError(&w, web.NewValidationError("User ID", map[string]string{"error": "Invalid User ID"}))
 		return
 	}
-	bookmark := models.Bookmark{}
-	err = parseForm(&bookmark, r)
+	bookmark := models.NewBookmarkWithID()
+	// err = parseForm(&bookmark, r)
+	err = web.UnmarshalJSON(r, bookmark)
 	if err != nil {
 		web.RespondError(&w, web.NewValidationError("error", map[string]string{"msg": err.Error()}))
 		return
 	}
 	bookmark.UserID = *uid
-	bookmark.ID = web.GetUUID()
-	err = cntrolr.bmsrv.AddBookmark(&bookmark)
+	// bookmark.ID = web.GetUUID()
+	err = cntrolr.bmsrv.AddBookmark(bookmark)
 	if err != nil {
 		web.RespondError(&w, err)
 		return

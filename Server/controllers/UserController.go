@@ -41,30 +41,31 @@ func (authcntrol *UserController) RouterRgstr(r *mux.Router) {
 
 func (authcntrol *UserController) registerUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	err := r.ParseForm()
+	// err := r.ParseForm()
+	user := models.User{}
+	err := web.UnmarshalJSON(r, &user)
 	if err != nil {
 		web.RespondError(&w, web.NewValidationError("Form Parse", map[string]string{"error": "Data can't handler"}))
 		return
 	}
-	user := models.User{}
 
-	if v := r.PostFormValue("name"); len(v) > 0 {
-		user.Name = v
-	}
+	// if v := r.PostFormValue("name"); len(v) > 0 {
+	// 	user.Name = v
+	// }
 	if len(user.Getname()) <= 0 {
 		web.RespondError(&w, web.NewValidationError("require", map[string]string{"error": "name Required"}))
 		return
 	}
-	if v := r.PostFormValue("username"); len(v) > 0 {
-		user.Username = v
-	}
+	// if v := r.PostFormValue("username"); len(v) > 0 {
+	// 	user.Username = v
+	// }
 	if len(user.Getusername()) <= 0 {
 		web.RespondError(&w, web.NewValidationError("require", map[string]string{"error": "username Required"}))
 		return
 	}
-	if v := r.PostFormValue("password"); len(v) > 0 {
-		user.Password = v
-	}
+	// if v := r.PostFormValue("password"); len(v) > 0 {
+	// 	user.Password = v
+	// }
 
 	if len(user.Getpassword()) <= 0 {
 		web.RespondError(&w, web.NewValidationError("require", map[string]string{"error": "password Required"}))
@@ -87,17 +88,25 @@ func (authcntrol *UserController) registerUser(w http.ResponseWriter, r *http.Re
 
 func (authcntrol *UserController) login(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	err := r.ParseForm()
+	// err := r.ParseForm()
+	user := models.User{}
+	err := web.UnmarshalJSON(r, &user)
 	if err != nil {
 		web.RespondError(&w, web.NewValidationError("Form Parse", map[string]string{"error": "Data can't Handle"}))
 		return
 	}
-	user := models.User{}
-	if v := r.PostFormValue("username"); len(v) > 0 {
-		user.Username = v
+	// if v := r.PostFormValue("username"); len(v) > 0 {
+	// 	user.Username = v
+	// }
+	// if v := r.PostFormValue("password"); len(v) > 0 {
+	// 	user.Password = v
+	// }
+
+	if len(user.Getusername()) == 0 {
+		web.RespondError(&w, web.NewValidationError("Require", map[string]string{"error": "username required"}))
 	}
-	if v := r.PostFormValue("password"); len(v) > 0 {
-		user.Password = v
+	if len(user.Getpassword()) == 0 {
+		web.RespondError(&w, web.NewValidationError("Require", map[string]string{"error": "password required"}))
 	}
 
 	err = authcntrol.authsrv.Login(&user)
