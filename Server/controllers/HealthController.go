@@ -22,7 +22,5 @@ func (controller *Controller) RegisterRoutes(router *mux.Router) {
 }
 
 func (controller *Controller) healthCheck(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	// json.NewEncoder(w).Encode("Working")
 	web.RespondJSON(&w, http.StatusOK, `{"msg":"OK"}`)
 }
