@@ -31,13 +31,6 @@ func (cntrolr *Controller) AuthUser(h http.Handler) http.Handler {
 			return
 		}
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-			// // If token is valid
-			// response := make(map[string]string)
-			// // response["user"] = claims["username"]
-			// response["time"] = time.Now().String()
-			// response["user"] = claims["username"].(string)
-			// responseJSON, _ := json.Marshal(response)
-			// w.Write(responseJSON)
 			var apiuserid, userid *uuid.UUID
 			var err error
 			apiuserid, err = web.ParseID(mux.Vars(r)["userid"])

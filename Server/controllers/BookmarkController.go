@@ -27,12 +27,12 @@ func NewController(bookmarkservice *services.BookmarkService, bookmarkcategoryse
 
 // RouterRegstr Register All Endpoint of Bookmark to Router
 func (cntrolr *Controller) RouterRegstr(r *mux.Router) {
-	s := r.PathPrefix("/api/user/{userid}").Subrouter()
+	s := r.PathPrefix("/api/v1/user/{userid}").Subrouter()
 	s.Use(cntrolr.AuthUser)
 	cntrolr.CategoryRgstr(s)
 	s.HandleFunc("/bookmark", cntrolr.GetAllBookmark).Methods("GET")
 	s.HandleFunc("/bookmark/{bookmarkid}", cntrolr.GetBookmarkByID).Methods("GET")
-	s.HandleFunc("/bookmark/category/{bookmarkid}", cntrolr.GetBookmarkByCategory).Methods("GET")
+	s.HandleFunc("/bookmark/category/{categoryid}", cntrolr.GetBookmarkByCategory).Methods("GET")
 	s.HandleFunc("/bookmark", cntrolr.AddBookmark).Methods("POST")
 	s.HandleFunc("/bookmark/{bookmarkid}", cntrolr.UpdateBookmark).Methods("PUT")
 	s.HandleFunc("/bookmark/{bookmarkid}", cntrolr.DeleteBookmark).Methods("DELETE")
@@ -89,9 +89,9 @@ func (cntrolr *Controller) GetBookmarkByCategory(w http.ResponseWriter, r *http.
 		return
 	}
 	var bid *uuid.UUID
-	bid, err = web.ParseID(param["bookmarkid"])
+	bid, err = web.ParseID(param["categoryid"])
 	if err != nil {
-		web.RespondError(&w, web.NewValidationError("error", map[string]string{"msg": err.Error()}))
+		web.RespondError(&w, web.NewValidationError("error", map[string]string{"msg": "Invalid Category ID"}))
 		return
 	}
 	bookmarks := []models.Bookmark{}
@@ -108,8 +108,12 @@ func (cntrolr *Controller) UpdateBookmark(w http.ResponseWriter, r *http.Request
 	param := mux.Vars(r)
 	bookmark := models.Bookmark{}
 	uid, err := web.ParseID(param["userid"])
-	// err = parseForm(&bookmark, r)
 	err = web.UnmarshalJSON(r, &bookmark)
+	if err != nil {
+		web.RespondError(&w, web.NewValidationError("error", map[string]string{"msg": err.Error()}))
+		return
+	}
+	err = validateBookmark(&bookmark)
 	if err != nil {
 		web.RespondError(&w, web.NewValidationError("error", map[string]string{"msg": err.Error()}))
 		return
@@ -155,21 +159,23 @@ func (cntrolr *Controller) DeleteBookmark(w http.ResponseWriter, r *http.Request
 
 // AddBookmark Add New Data to Database
 func (cntrolr *Controller) AddBookmark(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
 	uid, err := web.ParseID(mux.Vars(r)["userid"])
 	if err != nil {
 		web.RespondError(&w, web.NewValidationError("User ID", map[string]string{"error": "Invalid User ID"}))
 		return
 	}
 	bookmark := models.NewBookmarkWithID()
-	// err = parseForm(&bookmark, r)
 	err = web.UnmarshalJSON(r, bookmark)
 	if err != nil {
 		web.RespondError(&w, web.NewValidationError("error", map[string]string{"msg": err.Error()}))
 		return
 	}
+	err = validateBookmark(bookmark)
+	if err != nil {
+		web.RespondError(&w, web.NewValidationError("error", map[string]string{"msg": err.Error()}))
+		return
+	}
 	bookmark.UserID = *uid
-	// bookmark.ID = web.GetUUID()
 	err = cntrolr.bmsrv.AddBookmark(bookmark)
 	if err != nil {
 		web.RespondError(&w, err)
@@ -178,35 +184,15 @@ func (cntrolr *Controller) AddBookmark(w http.ResponseWriter, r *http.Request) {
 	web.RespondJSON(&w, http.StatusOK, bookmark.ID)
 }
 
-func parseForm(bookmark *models.Bookmark, r *http.Request) error {
-	err := r.ParseForm()
-	if err != nil {
-		return err
-	}
-	if v := r.PostFormValue("label"); len(v) > 0 {
-		bookmark.Label = v
-	}
+func validateBookmark(bookmark *models.Bookmark) error {
 	if bookmark.GetLabel() == "" {
 		return errors.New("label is Required")
-	}
-	if v := r.PostFormValue("tag"); len(v) > 0 {
-		bookmark.Tag = v
 	}
 	if bookmark.GetTag() == "" {
 		return errors.New("tag is Required")
 	}
-	if v := r.PostFormValue("url"); len(v) > 0 {
-		bookmark.URL = v
-	}
 	if bookmark.GetURL() == "" {
 		return errors.New("url is Required")
-	}
-	if v := r.PostFormValue("categoryid"); len(v) > 0 {
-		id, err := web.ParseID(v)
-		if err != nil {
-			return errors.New("Invalid Category ID")
-		}
-		bookmark.CategoryID = *id
 	}
 	if (bookmark.GetCategoryID() == uuid.UUID{}) {
 		return errors.New("categoryid is Required")

@@ -64,17 +64,13 @@ func (cntrlr *Controller) GetCategoryByID(w http.ResponseWriter, r *http.Request
 func (cntrlr *Controller) AddCategory(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["userid"]
 	uid, err := web.ParseID(id)
-	fmt.Println("Called")
-	// err = r.ParseForm()
 	category := models.Category{}
 	err = web.UnmarshalJSON(r, &category)
 	if err != nil {
 		web.RespondError(&w, web.NewValidationError("Form Parse", map[string]string{"error": "data can't handle"}))
 		return
 	}
-	// if v := r.PostFormValue("category"); len(v) > 0 {
-	// 	category.CName = v
-	// }
+
 	if category.GetCategoryName() == "" {
 		web.RespondError(&w, web.NewValidationError("Require", map[string]string{"error": "Category Name Required"}))
 		return
@@ -113,9 +109,7 @@ func (cntrlr *Controller) UpdateCategory(w http.ResponseWriter, r *http.Request)
 		web.RespondError(&w, web.NewValidationError("Error", map[string]string{"msg": "Data can't handle"}))
 		return
 	}
-	// if v := r.PostFormValue("category"); len(v) > 0 {
-	// 	category.CName = v
-	// }
+
 	if category.GetCategoryName() == "" {
 		web.RespondError(&w, web.NewValidationError("require", map[string]string{"error": "Category ID Required"}))
 		return
@@ -155,10 +149,3 @@ func (cntrlr *Controller) DeleteCategory(w http.ResponseWriter, r *http.Request)
 func (cntrlr *Controller) RecentCategory(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 }
-
-// func (cntrlr *BMCController)ValidateUser(id string) *uuid.UUID, error{
-// 	uid, err := uuid.Parse(id)
-// 	if err != nil {
-// 		return nil, errors.New("Invalid User")
-// 	}
-// }

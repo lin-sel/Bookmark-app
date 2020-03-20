@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
@@ -24,8 +23,6 @@ type Response struct {
 	Token string `json:"token"`
 }
 
-// var secretKey = []byte("Private_Key")
-
 // NewUserController Return UserController Instance
 func NewUserController(srv *services.UserService) *UserController {
 	return &UserController{
@@ -35,13 +32,11 @@ func NewUserController(srv *services.UserService) *UserController {
 
 // RouterRgstr Register All Endpoint.
 func (authcntrol *UserController) RouterRgstr(r *mux.Router) {
-	r.HandleFunc("/api/user/register", authcntrol.registerUser).Methods("POST")
-	r.HandleFunc("/api/user/login", authcntrol.login).Methods("POST")
+	r.HandleFunc("/api/v1/user/register", authcntrol.registerUser).Methods("POST")
+	r.HandleFunc("/api/v1/user/login", authcntrol.login).Methods("POST")
 }
 
 func (authcntrol *UserController) registerUser(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	// err := r.ParseForm()
 	user := models.User{}
 	err := web.UnmarshalJSON(r, &user)
 	if err != nil {
@@ -49,23 +44,15 @@ func (authcntrol *UserController) registerUser(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	// if v := r.PostFormValue("name"); len(v) > 0 {
-	// 	user.Name = v
-	// }
 	if len(user.Getname()) <= 0 {
 		web.RespondError(&w, web.NewValidationError("require", map[string]string{"error": "name Required"}))
 		return
 	}
-	// if v := r.PostFormValue("username"); len(v) > 0 {
-	// 	user.Username = v
-	// }
+
 	if len(user.Getusername()) <= 0 {
 		web.RespondError(&w, web.NewValidationError("require", map[string]string{"error": "username Required"}))
 		return
 	}
-	// if v := r.PostFormValue("password"); len(v) > 0 {
-	// 	user.Password = v
-	// }
 
 	if len(user.Getpassword()) <= 0 {
 		web.RespondError(&w, web.NewValidationError("require", map[string]string{"error": "password Required"}))
@@ -82,31 +69,25 @@ func (authcntrol *UserController) registerUser(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	json.NewEncoder(w).Encode(user.ID)
+	web.RespondJSON(&w, http.StatusOK, user.ID)
 
 }
 
 func (authcntrol *UserController) login(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	// err := r.ParseForm()
 	user := models.User{}
 	err := web.UnmarshalJSON(r, &user)
 	if err != nil {
 		web.RespondError(&w, web.NewValidationError("Form Parse", map[string]string{"error": "Data can't Handle"}))
 		return
 	}
-	// if v := r.PostFormValue("username"); len(v) > 0 {
-	// 	user.Username = v
-	// }
-	// if v := r.PostFormValue("password"); len(v) > 0 {
-	// 	user.Password = v
-	// }
 
 	if len(user.Getusername()) == 0 {
 		web.RespondError(&w, web.NewValidationError("Require", map[string]string{"error": "username required"}))
+		return
 	}
 	if len(user.Getpassword()) == 0 {
 		web.RespondError(&w, web.NewValidationError("Require", map[string]string{"error": "password required"}))
+		return
 	}
 
 	err = authcntrol.authsrv.Login(&user)
@@ -133,5 +114,5 @@ func (authcntrol *UserController) GetToken(user *models.User, w *http.ResponseWr
 		web.RespondError(w, web.NewValidationError("error", map[string]string{"msg": err.Error()}))
 		return
 	}
-	json.NewEncoder(*w).Encode(Response{Token: tokenString, User: *user})
+	web.RespondJSON(w, http.StatusOK, Response{Token: tokenString, User: *user})
 }
