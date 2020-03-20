@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -32,7 +31,6 @@ func main() {
 		ReadTimeout:  15 * time.Second,
 		Addr:         ":8080",
 	}
-	var wait time.Duration
 
 	go func() {
 		log.Fatal(srv.ListenAndServe())
@@ -44,12 +42,9 @@ func main() {
 
 	<-ch
 
-	ctx, cancel := context.WithTimeout(context.Background(), wait)
-	defer cancel()
 	defer func() {
 		con.Close()
 	}()
-	srv.Shutdown(ctx)
 	fmt.Println("Server ShutDown....")
 }
 
