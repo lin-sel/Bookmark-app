@@ -18,6 +18,7 @@ type BookmarkCategoryService struct {
 // NewBookmarkCategoryService Return New Service Object
 func NewBookmarkCategoryService(repo *repository.Repositorysrv, db *gorm.DB) *BookmarkCategoryService {
 	db.AutoMigrate(models.Category{})
+	db.Model(models.Category{}).AddForeignKey("user_id", "users(id)", "CASCADE", "CASCADE")
 	return &BookmarkCategoryService{Repository: repo, DB: db}
 }
 
@@ -65,7 +66,7 @@ func (bm *BookmarkCategoryService) DeleteBookmarkCategory(uid, cid uuid.UUID) er
 // GetBookmarkCategory to Database
 func (bm *BookmarkCategoryService) GetBookmarkCategory(uid, cid uuid.UUID, category *[]models.Category) error {
 	uow := repository.NewUnitOfWork(bm.DB, true)
-	err := bm.Repository.Get(uow, category, uid, cid, []string{})
+	err := bm.Repository.Get(uow, category, uid, cid, []string{"Bookmark"})
 	if err != nil {
 		uow.Complete()
 		return err
@@ -78,7 +79,7 @@ func (bm *BookmarkCategoryService) GetBookmarkCategory(uid, cid uuid.UUID, categ
 func (bm *BookmarkCategoryService) GetAllBookmarkCategory(uid uuid.UUID, categories *[]models.Category) error {
 	fmt.Println("Get All")
 	uow := repository.NewUnitOfWork(bm.DB, true)
-	err := bm.Repository.GetAll(uow, uid, categories, []string{})
+	err := bm.Repository.GetAll(uow, uid, categories, []string{"Bookmark"})
 	if err != nil {
 		uow.Complete()
 		return err

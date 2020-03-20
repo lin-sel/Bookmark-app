@@ -44,7 +44,7 @@ func (auth *UserService) Register(user *models.User) error {
 func (auth *UserService) Login(user *models.User) error {
 	uow := repository.NewUnitOfWork(auth.DB, true)
 	authuser := models.User{}
-	err := auth.Repository.GetByField(uow, user.Getusername(), "username", "", &authuser, []string{})
+	err := auth.Repository.GetByField(uow, user.Getusername(), "username", "", &authuser, []string{"Category"})
 	if authuser.IsEmpty() {
 		return errors.New("Invalid User")
 	}
