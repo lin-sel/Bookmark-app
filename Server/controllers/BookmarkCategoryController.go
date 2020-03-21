@@ -33,7 +33,6 @@ func (cntrlr *Controller) GetAllCategory(w http.ResponseWriter, r *http.Request)
 		web.RespondError(&w, err)
 		return
 	}
-	fmt.Println(categories[0].GetCategoryName(), "Called")
 	web.RespondJSON(&w, http.StatusOK, categories)
 }
 
