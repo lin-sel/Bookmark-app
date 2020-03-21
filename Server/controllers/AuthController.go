@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/dgrijalva/jwt-go/request"
@@ -51,6 +52,12 @@ func (cntrolr *Controller) AuthUser(h http.Handler) http.Handler {
 
 			if *userid != *apiuserid {
 				web.RespondError(&w, web.NewHTTPError("Access Denied.", http.StatusForbidden))
+				return
+			}
+
+			issueAt, _ := claims["IssuedAt"].(int64)
+			if issueAt < time.Now().Unix() {
+				web.RespondError(&w, web.NewHTTPError("Session Expire Please Login Again.", http.StatusForbidden))
 				return
 			}
 			h.ServeHTTP(w, r)
