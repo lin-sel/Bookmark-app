@@ -2,7 +2,6 @@ package web
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 )
 
@@ -14,7 +13,6 @@ func RespondErrorMessage(w *http.ResponseWriter, code int, message string) {
 // RespondJSON Set Respond with status code.
 func RespondJSON(w *http.ResponseWriter, statuscode int, content interface{}) {
 	// v, ok := content.(string)
-	fmt.Println(content)
 	// if ok {
 	// 	if v == "" {
 	// 		content = []int{}
