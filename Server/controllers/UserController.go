@@ -12,6 +12,8 @@ import (
 	"github.com/lin-sel/bookmark-app/web"
 )
 
+const session int64 = 600
+
 // UserController Structure
 type UserController struct {
 	authsrv *services.UserService
@@ -106,7 +108,7 @@ func (authcntrol *UserController) GetToken(user *models.User, w *http.ResponseWr
 	claims := jwt.MapClaims{
 		"username": user.Getusername(),
 		"userID":   user.GetuserID(),
-		"IssuedAt": time.Now().Unix(),
+		"IssuedAt": time.Now().Unix() + session,
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString(secretKey)
