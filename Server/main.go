@@ -21,7 +21,7 @@ func main() {
 	con := conn()
 	route := mux.NewRouter()
 	repo := repository.NewRepository()
-	headers := handlers.AllowedHeaders([]string{"Content-Type"})
+	headers := handlers.AllowedHeaders([]string{"Content-Type", "token"})
 	methods := handlers.AllowedMethods([]string{"POST", "PUT", "GET", "DELETE", "OPTION"})
 	origin := handlers.AllowedOrigins([]string{"*"})
 	srv := &http.Server{
