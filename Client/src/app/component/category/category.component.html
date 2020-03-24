@@ -1,0 +1,73 @@
+<app-navbar></app-navbar>
+<div class="root-div" style="padding:5%">
+      <div class="row mx-auto">
+            <div class="col-md-4 col-sm-6 padding-bottom-5-percent">
+                  <ul class="list-group shadow">
+                        <li class="list-group-item active text-center">
+                              Category List
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center"
+                              *ngFor="let cate of categories">
+                              {{categories && cate.category}}
+                              <button type="button" class="btn btn-light" (click)="setContent(cate)" data-toggle="modal"
+                                    data-target="#viewmodel">Edit</button>
+
+                        </li>
+                        <li (click)="addCategory('Add')" class="list-group-item text-center cursor-style"
+                              data-toggle="modal" data-target="#viewmodel">+ New
+                              Category</li>
+                  </ul>
+            </div>
+      </div>
+</div>
+<!-- <div class="row mx-auto" *ngIf="categories.length == 0">
+      <div class="col-md-4 col-sm-6 padding-bottom-5-percent">
+            <ul class="list-group shadow">
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Category List
+                  </li>
+                  <li (click)="addCategory()" class="list-group-item text-center cursor-style">+ New
+                        Category</li>
+            </ul>
+      </div>
+</div> -->
+<div id="viewmodel" class="modal fade">
+      <!-- <div> -->
+      <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                  <!-- Modal Header -->
+                  <div class="modal-header">
+                        <h4 class="modal-title">Category</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                  </div>
+
+                  <!-- Modal body -->
+                  <div class="modal-body">
+                        <form [formGroup]="category">
+                              <div class="form-group">
+                                    <label for="category">category<sup class="text-red">*</sup></label>
+                                    <input type="text" formControlName="category" class="form-control"
+                                          placeholder="category">
+                              </div>
+                              <div *ngIf="f.category.errors && f.category.touched" class="text-red">
+                                    <div *ngIf="f.category.errors.required">
+                                          category required*
+                                    </div>
+                              </div>
+                        </form>
+                  </div>
+
+                  <!-- Modal footer -->
+                  <div class="modal-footer">
+                        <button type="button" class="btn btn-info" data-dismiss="modal" (click)="updateCategory()"
+                              [disabled]="category.invalid">{{buttonname}}</button>
+                        <button type="button" *ngIf="buttonname != 'Add'" class="btn btn-danger" data-dismiss="modal"
+                              (click)="deleteCategory()">Delete</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  </div>
+
+            </div>
+      </div>
+      <!-- </div> -->
+</div>

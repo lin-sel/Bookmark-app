@@ -1,22 +1,46 @@
-<!-- <div class="root">
+<div class="root">
       <div class="logo">
             <img src="assets/images/logo1.png" class="logo-style">
       </div>
       <div class="login-div">
-            <form>
+            <form [formGroup]="register">
                   <div class="form-group">
-                        <label for="username">Name</label>
-                        <input type="text" class="form-control" placeholder="Name">
+                        <label for="username">Name<sup class="text-red">*</sup></label>
+                        <input type="text" formControlName="name" class="form-control" placeholder="Name">
+                  </div>
+                  <div *ngIf="f.name.errors && f.name.touched" class="text-red">
+                        <div *ngIf="f.name.errors.required">
+                              name required*
+                        </div>
                   </div>
                   <div class="form-group">
-                        <label for="username">Username</label>
-                        <input type="text" class="form-control" placeholder="Username">
+                        <label for="username">Username<sup class="text-red">*</sup></label>
+                        <input type="text" formControlName="username" class="form-control" placeholder="Username">
+                  </div>
+                  <div *ngIf="f.username.errors && f.username.touched" class="text-red">
+                        <div *ngIf="f.username.errors.required">
+                              username required*
+                        </div>
                   </div>
                   <div class="form-group">
-                        <label for="username">Password</label>
-                        <input type="password" class="form-control" placeholder="Username">
+                        <label for="username">Password<sup class="text-red">*</sup></label>
+                        <input type="password" formControlName="password" class="form-control" placeholder="Username">
+                  </div>
+                  <div *ngIf="f.password.errors && f.password.touched" class="text-red">
+                        <div *ngIf="f.password.errors.required">
+                              password required*
+                        </div>
                   </div>
             </form>
-            <button type="button" class="btn btn-success">Register</button>
+            <div class="row">
+                  <div class="col">
+                        <button type="button" [disabled]="register.invalid" (click)="userRegister()"
+                              class="btn btn-success">Register</button>
+                  </div>
+                  <div class="col">
+                        <button type="button" style="width:50%" (click)="navigate('login')"
+                              class="btn btn-success">login</button>
+                  </div>
+            </div>
       </div>
-</div> -->
+</div>

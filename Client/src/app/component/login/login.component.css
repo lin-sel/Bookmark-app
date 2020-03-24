@@ -21,3 +21,7 @@
       height: auto;
       margin: 1% auto;
 }
+
+.invalid-feedback{
+      color:red;
+}

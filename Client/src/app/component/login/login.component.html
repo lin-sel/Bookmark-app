@@ -9,20 +9,29 @@
                         <label>Username</label>
                         <input type="text" formControlName="username" class="form-control" placeholder="Username">
                   </div>
-                  <div *ngIf="formControl.invalid">
-                        username is required*
+                  <div *ngIf="f.username.errors && f.username.touched" style="color:red;margin-top:-10px">
+                        <div *ngIf="f.username.errors.required">
+                              username is required*
+                        </div>
                   </div>
                   <div class="form-group">
                         <label for="username">Password</label>
-                        <input type="password" class="form-control" placeholder="Password">
+                        <input type="password" formControlName="password" class="form-control" placeholder="Password">
+                  </div>
+                  <div *ngIf="f.password.errors && f.password.touched" style="color:red;margin-top:-10px">
+                        <div *ngIf="f.password.errors.required">
+                              password is required*
+                        </div>
                   </div>
             </form>
             <div class="row">
                   <div class="col">
-                        <button type="button" style="width:50%" class="btn btn-success">Login</button>
+                        <button type="button" style="width:50%" [disabled]="login.invalid" (click)="appLogin()"
+                              class="btn btn-success">Login</button>
                   </div>
                   <div class="col">
-                        <button type="button" style="width:50%" class="btn btn-success">Register</button>
+                        <button type="button" style="width:50%" (click)="navigate('register')"
+                              class="btn btn-success">Register</button>
                   </div>
             </div>
       </div>

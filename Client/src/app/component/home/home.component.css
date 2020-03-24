@@ -1,0 +1,21 @@
+
+.no-padding{
+      padding:0px;
+}     
+
+.no-margin{
+      margin:0px;
+      padding: 0px;
+}
+
+.shadow{
+      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.padding-bottom-5-percent{
+      padding-bottom:5%;
+}
+
+.cursor-style{
+      cursor: pointer;
+}

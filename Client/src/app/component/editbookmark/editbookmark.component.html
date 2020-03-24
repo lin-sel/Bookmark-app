@@ -1,0 +1,40 @@
+<div class="root">
+      <div class="sub-div">
+            <h3>Update Bookmark</h3>
+            <form [formGroup]="bookmark">
+                  <div class="form-group">
+                        <label for="url">URL<sup class="text-red">*</sup></label>
+                        <input type="url" formControlName="url" class="form-control" placeholder="Url">
+                  </div>
+                  <div *ngIf="f.url.errors && f.url.touched" class="text-red">
+                        <div *ngIf="f.url.errors.required">
+                              url required*
+                        </div>
+                  </div>
+                  <div class="form-group">
+                        <label for="tag">Tag<sup class="text-red">*</sup></label>
+                        <input type="text" formControlName="tag" class="form-control" placeholder="Tag">
+                  </div>
+                  <div *ngIf="f.tag.errors && f.tag.touched" class="text-red">
+                        <div *ngIf="f.tag.errors.required">
+                              tag required*
+                        </div>
+                  </div>
+                  <div class="form-group">
+                        <label for="label">Label<sup class="text-red">*</sup></label>
+                        <input type="label" formControlName="label" class="form-control" placeholder="Label">
+                  </div>
+                  <div *ngIf="f.label.errors && f.label.touched" class="text-red">
+                        <div *ngIf="f.label.errors.required">
+                              label required*
+                        </div>
+                  </div>
+            </form>
+            <div class="row">
+                  <div class="col">
+                        <button type="button" [disabled]="bookmark.invalid || !bookmark.dirty"
+                              (click)="updateBookmark()" class="btn btn-success">Update</button>
+                  </div>
+            </div>
+      </div>
+</div>
