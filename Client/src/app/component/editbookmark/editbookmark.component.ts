@@ -18,18 +18,20 @@ export class EditbookmarkComponent implements OnInit {
             private formbuilder: FormBuilder,
             private json: JsonService,
             private mainservice: MainService,
-            private route: Router
+            private router: Router
       ) { }
 
       ngOnInit() {
             if (!this.mainservice.authUser()) {
                   alert("PLease Login First.");
-                  this.route.navigate(["login"]);
+                  this.router.navigate(["login"]);
                   return;
             }
             this.getParam();
       }
 
+
+      // Get Parameter From URL and Get Bookmark By ID.
       getParam() {
             let id = this.activeroute.snapshot.paramMap.get('id');
             let bookmk = this.mainservice.getBookmarkByID(id);
@@ -41,6 +43,7 @@ export class EditbookmarkComponent implements OnInit {
             this.initForm(bookmk)
       }
 
+      // Create Form Object.
       initForm(bookmark) {
             this.bookmark = this.formbuilder.group({
                   url: [bookmark.url, Validators.required],
@@ -51,22 +54,44 @@ export class EditbookmarkComponent implements OnInit {
             });
       }
 
+      // Update Bookmark.
       updateBookmark() {
             this.mainservice.updateBookmark(this.bookmark.value).then(data => {
                   console.log("Updated");
                   alert("Update Done");
                   this.navigate("bookmark");
             }).catch(err => {
-                  console.log(err);
-                  alert(err);
+                  let error = this.errorParser(err);
+                  alert(error);
+                  console.log(error)
+                  this.isSessionExpire(error);
             })
       }
 
+      // Return Control of Form.
       get f() {
             return this.bookmark.controls;
       }
 
+      // Navigate to Another URL.
       navigate(path: string) {
-            this.route.navigate([path])
+            this.router.navigate([path])
+      }
+
+      // Error Parser.
+      errorParser(err) {
+            let er = this.json.fromStringToJSON(err.error);
+            if (er != undefined) {
+                  return er.error;
+            }
+            return err.error;
+      }
+
+      // Check Session Expire and Perform Accordingly
+      isSessionExpire(s: string) {
+            console.log(this.mainservice.isSessionExpire(s))
+            if (this.mainservice.isSessionExpire(s)) {
+                  this.router.navigate(["login"]);
+            }
       }
 }

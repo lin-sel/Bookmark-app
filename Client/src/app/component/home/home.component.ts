@@ -20,7 +20,7 @@ export class HomeComponent implements OnInit {
 
       ngOnInit() {
             if (!this.mainservice.authUser()) {
-                  alert("PLease Login First.");
+                  alert("Please Login First.");
                   this.router.navigate(["login"]);
                   return;
             }
@@ -29,42 +29,78 @@ export class HomeComponent implements OnInit {
       }
 
       init() {
+            this.getAllBookmark();
+      }
+
+      getAllBookmark() {
             this.mainservice.getAllBookmark(true).then((respond: any[]) => {
                   this.categories = respond
                   console.log(this.categories);
             }).catch(err => {
-                  alert(err.error)
+                  let error = this.errorParser(err);
+                  alert(error);
+                  console.log(error)
+                  this.isSessionExpire(error);
             });
       }
 
+
+      // Set Data to Content variable for View.
       viewDetail(data) {
             this.content = data
       }
 
+
+      // Expose to External URL.
       goToExternalURL() {
             window.open("https://" + this.content['url'], "_blank")
       }
 
+      // Navigate to another page for add Bookmark.
       addBookmark(id: string) {
             this.navigate("addbookmark", id)
       }
 
+      // Delete Bookmark.
       deleteBookmark(id: string) {
             if (confirm("Are you want to delete?")) {
                   this.mainservice.deleteBookmark(id).then((respond: any[]) => {
                         alert("Bookmark Deleted");
                   }).catch(err => {
-                        alert(err.error)
+                        let error = this.errorParser(err);
+                        alert(error);
+                        console.log(error)
+                        this.isSessionExpire(error);
                   });
             }
       }
 
+
+      // Navigate to another url.
       navigate(path: string, id: string) {
             this.router.navigate([path, id]);
       }
 
+      // Return All Keys Of Object.
       getKeys() {
             return Object.keys(this.content);
+      }
+
+      // Error Parser.
+      errorParser(err) {
+            let er = this.json.fromStringToJSON(err.error);
+            if (er != undefined) {
+                  return er.error;
+            }
+            return err.error;
+      }
+
+      // Check Session Expire and Perform Accordingly
+      isSessionExpire(s: string) {
+            console.log(this.mainservice.isSessionExpire(s))
+            if (this.mainservice.isSessionExpire(s)) {
+                  this.router.navigate(["login"]);
+            }
       }
 
 }

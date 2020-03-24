@@ -13,7 +13,7 @@
                                     data-target="#viewmodel">Edit</button>
 
                         </li>
-                        <li (click)="addCategory('Add')" class="list-group-item text-center cursor-style"
+                        <li (click)="addAction('Add')" class="list-group-item text-center cursor-style"
                               data-toggle="modal" data-target="#viewmodel">+ New
                               Category</li>
                   </ul>
@@ -60,7 +60,7 @@
 
                   <!-- Modal footer -->
                   <div class="modal-footer">
-                        <button type="button" class="btn btn-info" data-dismiss="modal" (click)="updateCategory()"
+                        <button type="button" class="btn btn-info" data-dismiss="modal" (click)="buttonaction()"
                               [disabled]="category.invalid">{{buttonname}}</button>
                         <button type="button" *ngIf="buttonname != 'Add'" class="btn btn-danger" data-dismiss="modal"
                               (click)="deleteCategory()">Delete</button>

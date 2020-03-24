@@ -16,23 +16,25 @@ export class AddbookmarkComponent implements OnInit {
             private formbuilder: FormBuilder,
             private json: JsonService,
             private mainservice: MainService,
-            private route: Router
+            private router: Router
       ) { }
 
       ngOnInit() {
             if (!this.mainservice.authUser()) {
                   alert("PLease Login First.");
-                  this.route.navigate(["login"]);
+                  this.router.navigate(["login"]);
                   return;
             }
             this.getParam();
       }
 
+      // Get ID from URL.
       getParam() {
             let id = this.activeroute.snapshot.paramMap.get('id');
             this.initForm(id);
       }
 
+      // Form Object Created.
       initForm(categoryid) {
             this.bookmark = this.formbuilder.group({
                   url: ['', Validators.required],
@@ -42,23 +44,47 @@ export class AddbookmarkComponent implements OnInit {
             });
       }
 
+
+      // Add New Bookmark.
       addBookmark() {
             this.mainservice.addBookmark(this.bookmark.value).then(data => {
                   console.log("New Bookmark Added", data);
                   alert("New Bookmark Added");
                   this.navigate("bookmark");
             }).catch(err => {
-                  console.log(err);
-                  alert(this.json.fromStringToJSON(err).error);
+                  let error = this.errorParser(err);
+                  alert(error);
+                  console.log(error)
+                  this.isSessionExpire(error);
             })
       }
 
+      // Return Form Controls.
       get f() {
             return this.bookmark.controls;
       }
 
+      // Navigate to Another URL.
       navigate(path: string) {
-            this.route.navigate([path])
+            this.router.navigate([path])
       }
+
+      // Error Parser.
+      errorParser(err) {
+            let er = this.json.fromStringToJSON(err.error);
+            if (er != undefined) {
+                  return er.error;
+            }
+            return err.error;
+      }
+
+      // Check Session Expire and Perform Accordingly
+      isSessionExpire(s: string) {
+            console.log(this.mainservice.isSessionExpire(s))
+            if (this.mainservice.isSessionExpire(s)) {
+                  this.router.navigate(["login"]);
+            }
+      }
+
 
 }

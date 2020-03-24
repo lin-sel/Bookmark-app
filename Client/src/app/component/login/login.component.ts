@@ -3,6 +3,8 @@ import { Form, FormGroup, FormBuilder, FormControl, Validators } from '@angular/
 import { Router } from '@angular/router';
 import { LoginService } from 'src/app/service/login/login.service';
 import { LoggerService } from 'src/app/service/utils/logger.service';
+import { JsonService } from 'src/app/service/utils/json.service';
+import { MainService } from 'src/app/service/main.service';
 
 @Component({
       selector: 'app-login',
@@ -14,9 +16,10 @@ export class LoginComponent implements OnInit {
       private login: FormGroup
       constructor(
             private formbuilder: FormBuilder,
-            private route: Router,
-            private loginser: LoginService,
-            private logger: LoggerService
+            private router: Router,
+            private mainservice: MainService,
+            private logger: LoggerService,
+            private json: JsonService
       ) { }
 
       ngOnInit() {
@@ -30,24 +33,38 @@ export class LoginComponent implements OnInit {
             });
       }
 
+
+      // Return Form Controls.
       get f() {
             return this.login.controls;
       }
 
+
+      // Login to App.
       appLogin() {
             console.log(this.login.value);
-            this.loginser.login(this.login.value).then(() => {
+            this.mainservice.appLogin(this.login.value).then(() => {
                   this.logger.log("Login done")
                   alert("Login Done")
                   this.navigate("bookmark")
             }).catch(err => {
-                  this.logger.error(err)
-                  alert(err)
+                  let error = this.errorParser(err);
+                  alert(error);
+                  console.log(error)
             });
       }
 
+      // Navigate to Another URL.
       navigate(path: string) {
-            this.route.navigate([path]);
+            this.router.navigate([path]);
       }
 
+      // Error Parser.
+      errorParser(err) {
+            let er = this.json.fromStringToJSON(err.error);
+            if (er != undefined) {
+                  return er.error;
+            }
+            return err.error;
+      }
 }
