@@ -8,7 +8,16 @@ export class JsonService {
       constructor() { }
 
       fromStringToJSON(data) {
-            return JSON.parse(data)
+            let output: any
+            try {
+                  console.log(data);
+                  output = JSON.parse(data)
+                  console.log(output);
+            }
+            catch{
+                  return undefined;
+            }
+            return output;
       }
 
       fromJSONToString(data) {
