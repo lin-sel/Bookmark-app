@@ -22,6 +22,9 @@ export class NavbarComponent implements OnInit {
             //       this.router.navigate(["login"]);
             //       return;
             // }
+
+            // this.storage.setByID("userid", "9155f455-6781-4438-87af-492cc3925716")
+            // this.storage.setByID("token", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJc3N1ZWRBdCI6MTU4NTA2MTgxNSwidXNlcklEIjoiOTE1NWY0NTUtNjc4MS00NDM4LTg3YWYtNDkyY2MzOTI1NzE2IiwidXNlcm5hbWUiOiJuaWwifQ.Sr6vdRn6jn6rWMXQoEGvOuPNIv1i_MQDxjpB7l_bxgI")
       }
 
       signOut() {

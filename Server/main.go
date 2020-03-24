@@ -22,7 +22,7 @@ func main() {
 	route := mux.NewRouter()
 	repo := repository.NewRepository()
 	headers := handlers.AllowedHeaders([]string{"Content-Type"})
-	methods := handlers.AllowedMethods([]string{"POST", "PUT", "GET", "DELETE"})
+	methods := handlers.AllowedMethods([]string{"POST", "PUT", "GET", "DELETE", "OPTION"})
 	origin := handlers.AllowedOrigins([]string{"*"})
 	srv := &http.Server{
 		Handler:      handlers.CORS(headers, methods, origin)(route),

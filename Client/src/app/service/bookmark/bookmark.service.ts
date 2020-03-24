@@ -25,15 +25,9 @@ export class BookmarkService {
       getAll(check: boolean) {
             return new Promise((resolve, reject) => {
                   if (this.categorywithbookmark.length == 0 || !check) {
-                        const header = new HttpHeaders();
-                        this._http.get(`${this._constant.BASE}/${this._storage.getByID("userid")}/category`
-                              // {
-                              //       headers:
-                              //       {
-                              //             'token': `${this._config.getToken()}`,
-                              //             'Content-Type': 'application/json',
-                              //       }
-                              // }
+                        // let headers = new HttpHeaders().set('token', "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJc3N1ZWRBdCI6MTU4NTA2MTgxNSwidXNlcklEIjoiOTE1NWY0NTUtNjc4MS00NDM4LTg3YWYtNDkyY2MzOTI1NzE2IiwidXNlcm5hbWUiOiJuaWwifQ.Sr6vdRn6jn6rWMXQoEGvOuPNIv1i_MQDxjpB7l_bxgI");
+                        this._http.get(`${this._constant.BASE}/${this._storage.getByID("userid")}/category`,
+                              // { headers: headers },
                         ).toPromise().then((respond: any) => {
                               this._logger.info(respond)
                               this.categorywithbookmark = respond;
@@ -52,7 +46,7 @@ export class BookmarkService {
 
       update(data) {
             return new Promise((resolve, reject) => {
-                  const header = new HttpHeaders();
+                  const headers = new HttpHeaders();
                   this._http.put(`${this._constant.BASE}/${this._storage.getByID("userid")}/bookmark/${data.id}`, data
                         // {
                         //       headers:
@@ -86,7 +80,7 @@ export class BookmarkService {
 
       addBookmark(data) {
             return new Promise((resolve, reject) => {
-                  const header = new HttpHeaders();
+                  const headers = new HttpHeaders();
                   this._http.post(`${this._constant.BASE}/${this._storage.getByID("userid")}/bookmark`, data
                         // {
                         //       headers:
@@ -108,7 +102,7 @@ export class BookmarkService {
 
       deleteBookmark(bookmarkid) {
             return new Promise((resolve, reject) => {
-                  const header = new HttpHeaders();
+                  const headers = new HttpHeaders();
                   this._http.delete(`${this._constant.BASE}/${this._storage.getByID("userid")}/bookmark/${bookmarkid}`
                         // {
                         //       headers:
@@ -127,4 +121,6 @@ export class BookmarkService {
                   });
             });
       }
+
+
 }
