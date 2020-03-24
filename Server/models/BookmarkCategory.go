@@ -8,9 +8,9 @@ import (
 // Category Structure
 type Category struct {
 	Basemodel
-	CName    string    `gorm:"type:varchar(100)" json:"category"`
-	UserID   uuid.UUID `gorm:"type:varchar(40);not_null" json:"-"`
-	Bookmark []Bookmark
+	CName    string     `gorm:"type:varchar(100)" json:"category"`
+	UserID   uuid.UUID  `gorm:"type:varchar(40);not_null" json:"-"`
+	Bookmark []Bookmark `json:"bookmarks"`
 }
 
 // NewCategory Return Category Object

@@ -18,6 +18,7 @@ var secretKey = []byte("Private_Key")
 func (cntrolr *Controller) AuthUser(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tokenString, err := request.HeaderExtractor{"token"}.ExtractToken(r)
+		fmt.Println("Token", tokenString)
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			// Don't forget to validate the alg is what you expect:
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -28,7 +29,8 @@ func (cntrolr *Controller) AuthUser(h http.Handler) http.Handler {
 			return secretKey, nil
 		})
 		if err != nil {
-			web.RespondError(&w, web.NewHTTPError("Access Denied.", http.StatusForbidden))
+			fmt.Println(err)
+			web.RespondError(&w, web.NewHTTPError("Hello Access Denied.", http.StatusForbidden))
 			return
 		}
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
@@ -55,9 +57,13 @@ func (cntrolr *Controller) AuthUser(h http.Handler) http.Handler {
 				return
 			}
 
-			issueAt, _ := claims["IssuedAt"].(int64)
-			if issueAt < time.Now().Unix() {
+			issueAt, er := claims["IssuedAt"].(float64)
+			if issueAt < float64(time.Now().Unix()) {
 				web.RespondError(&w, web.NewHTTPError("Session Expire Please Login Again.", http.StatusForbidden))
+				return
+			}
+			if r.Method == "OPTION" {
+				w.WriteHeader(http.StatusOK)
 				return
 			}
 			h.ServeHTTP(w, r)

@@ -12,7 +12,7 @@ type Bookmark struct {
 	URL        string    `gorm:"type:varchar(300)" json:"url"`
 	Tag        string    `gorm:"type:varchar(300)" json:"tag"`
 	UserID     uuid.UUID `gorm:"type:varchar(40);not_null" json:"-"`
-	CategoryID uuid.UUID `gorm:"type:varchar(40);not_null"`
+	CategoryID uuid.UUID `gorm:"type:varchar(40);not_null" json:"categoryid"`
 }
 
 // NewBookmark return Bookmark Struct

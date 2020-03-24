@@ -21,6 +21,7 @@ func (cntrlr *Controller) CategoryRgstr(s *mux.Router) {
 
 // GetAllCategory return All Category Of User
 func (cntrlr *Controller) GetAllCategory(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Called")
 	id := mux.Vars(r)["userid"]
 	uid, err := web.ParseID(id)
 	if err != nil {

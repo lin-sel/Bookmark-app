@@ -21,7 +21,6 @@ func main() {
 	con := conn()
 	route := mux.NewRouter()
 	repo := repository.NewRepository()
-	prepareController(con, route, repo)
 	headers := handlers.AllowedHeaders([]string{"Content-Type"})
 	methods := handlers.AllowedMethods([]string{"POST", "PUT", "GET", "DELETE"})
 	origin := handlers.AllowedOrigins([]string{"*"})
@@ -31,6 +30,7 @@ func main() {
 		ReadTimeout:  15 * time.Second,
 		Addr:         ":8080",
 	}
+	prepareController(con, route, repo)
 
 	go func() {
 		log.Fatal(srv.ListenAndServe())

@@ -8,10 +8,10 @@ import (
 // User define Name, Username, Password
 type User struct {
 	Basemodel
-	Name     string `gorm:"type:varchar(30);" json:"name"`
-	Username string `gorm:"type:varchar(25);unique_index" json:"username"`
-	Password string `gorm:"type:varchar(70)" json:"password"`
-	Category []Category
+	Name     string     `gorm:"type:varchar(30);" json:"name"`
+	Username string     `gorm:"type:varchar(25);unique_index" json:"username"`
+	Password string     `gorm:"type:varchar(70)" json:"password"`
+	Category []Category `json:"categories"`
 }
 
 // NewUserWithID Return user instance with ID
