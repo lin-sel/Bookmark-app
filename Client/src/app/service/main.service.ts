@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { BookmarkService } from './bookmark/bookmark.service';
 import { CategoryService } from './category/category.service';
 import { StorageService } from './utils/storage.service';
+import { LoginService } from './login/login.service';
+import { RegisterService } from './register/register.service';
 
 @Injectable({
       providedIn: 'root'
@@ -11,7 +13,9 @@ export class MainService {
       constructor(
             private bookmark: BookmarkService,
             private category: CategoryService,
-            private storage: StorageService
+            private storage: StorageService,
+            private login: LoginService,
+            private register: RegisterService
       ) {
             this.authUser()
       }
@@ -45,6 +49,11 @@ export class MainService {
             }
       }
 
+      isSessionExpire(s: string): boolean {
+            let msg: string = s.toLowerCase();
+            return msg.includes("session expire")
+      }
+
       getAllCategory(check: boolean): Promise<any> {
             return this.category.getAll(check)
       }
@@ -65,6 +74,14 @@ export class MainService {
             return this.category.addCategory(data);
       }
 
+
+      appLogin(data) {
+            return this.login.login(data);
+      }
+
+      userRegister(data) {
+            return this.register.register(data);
+      }
 
 
 }

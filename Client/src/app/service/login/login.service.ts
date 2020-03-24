@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { LoggerService } from '../utils/logger.service';
 import { JsonService } from '../utils/json.service';
 import { StorageService } from '../utils/storage.service';
@@ -20,7 +20,9 @@ export class LoginService {
 
       login(data) {
             return new Promise((resolve, reject) => {
-                  this._http.post(`${this._constant.BASE}/login`, data).toPromise().then((respond: any) => {
+                  this._http.post(`${this._constant.BASE}/login`, data,
+                        { headers: this.getToken() }
+                  ).toPromise().then((respond: any) => {
                         this._logger.log(respond)
                         this._storage.setByID("token", respond.token)
                         this._storage.setByID("userid", respond.id)
@@ -31,4 +33,9 @@ export class LoginService {
                   })
             })
       }
+
+      getToken(): HttpHeaders {
+            return new HttpHeaders().set('token', `${this._storage.getByID('token')}`);
+      }
 }
+

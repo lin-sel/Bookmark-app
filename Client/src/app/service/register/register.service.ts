@@ -18,7 +18,13 @@ export class RegisterService {
 
       register(data) {
             return new Promise((resolve, reject) => {
-                  this._http.post(`${this._constant.BASE}/register`, data).toPromise().then(respond => {
+                  this._http.post(`${this._constant.BASE}/register`, data,
+                        {
+                              headers: {
+                                    'token': ""
+                              }
+                        }
+                  ).toPromise().then(respond => {
                         resolve()
                         this._logger.info("Register Successful")
                   }).catch(err => {
@@ -27,4 +33,6 @@ export class RegisterService {
                   });
             });
       }
+
+
 }

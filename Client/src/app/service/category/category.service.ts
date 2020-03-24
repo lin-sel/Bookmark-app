@@ -26,13 +26,7 @@ export class CategoryService {
                   if (this.categories.length == 0 || !check) {
                         const header = new HttpHeaders();
                         this._http.get(`${this._constant.BASE}/${this._storage.getByID("userid")}/category`
-                              // {
-                              //       headers:
-                              //       {
-                              //             'token': `${this._config.getToken()}`,
-                              //             'Content-Type': 'application/json',
-                              //       }
-                              // }
+                              , { headers: this.getToken() }
                         ).toPromise().then((respond: any) => {
                               this._logger.info(respond)
                               this.categories = respond;
@@ -52,13 +46,7 @@ export class CategoryService {
             return new Promise((resolve, reject) => {
                   const header = new HttpHeaders();
                   this._http.put(`${this._constant.BASE}/${this._storage.getByID("userid")}/category/${id}`, data
-                        // {
-                        //       headers:
-                        //       {
-                        //             'token': `${this._config.getToken()}`,
-                        //             'Content-Type': 'application/json',
-                        //       }
-                        // }
+                        , { headers: this.getToken() }
                   ).toPromise().then((respond: any) => {
                         this._logger.info(respond)
                         this.getAll(false);
@@ -83,14 +71,8 @@ export class CategoryService {
       addCategory(data) {
             return new Promise((resolve, reject) => {
                   const header = new HttpHeaders();
-                  this._http.post(`${this._constant.BASE}/${this._storage.getByID("userid")}/bookmark`, data
-                        // {
-                        //       headers:
-                        //       {
-                        //             'token': `${this._config.getToken()}`,
-                        //             'Content-Type': 'application/json',
-                        //       }
-                        // }
+                  this._http.post(`${this._constant.BASE}/${this._storage.getByID("userid")}/category`, data
+                        , { headers: this.getToken() }
                   ).toPromise().then((respond: any) => {
                         this._logger.info(respond)
                         this.getAll(false);
@@ -106,13 +88,7 @@ export class CategoryService {
             return new Promise((resolve, reject) => {
                   const header = new HttpHeaders();
                   this._http.delete(`${this._constant.BASE}/${this._storage.getByID("userid")}/category/${categoryid}`
-                        // {
-                        //       headers:
-                        //       {
-                        //             'token': `${this._config.getToken()}`,
-                        //             'Content-Type': 'application/json',
-                        //       }
-                        // }
+                        , { headers: this.getToken() }
                   ).toPromise().then((respond: any) => {
                         this._logger.info(respond)
                         this.getAll(false);
@@ -122,5 +98,9 @@ export class CategoryService {
                         reject(err)
                   });
             });
+      }
+
+      getToken(): HttpHeaders {
+            return new HttpHeaders().set('token', `${this._storage.getByID('token')}`);
       }
 }
