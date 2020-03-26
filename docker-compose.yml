@@ -1,0 +1,24 @@
+version: "3"
+
+services:
+  go:
+    container_name: go-server
+    image: go-api-service
+    build:
+      context: .
+      dockerfile: ./Server/Dockerfile
+    ports:
+      - 8080:8080
+    network_mode: host
+
+  client:
+    container_name: nginx-app
+    image: nginx-angualr-app
+    build:
+      context: .
+      dockerfile: ./Client/Dockerfile
+    ports:
+      - 80:80
+    depends_on:
+      - go
+    network_mode: host
