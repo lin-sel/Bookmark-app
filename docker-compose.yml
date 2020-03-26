@@ -7,6 +7,7 @@ services:
     build:
       context: .
       dockerfile: ./Server/Dockerfile
+    env_file: ./Server/env/server.env
     ports:
       - 8080:8080
     network_mode: host
