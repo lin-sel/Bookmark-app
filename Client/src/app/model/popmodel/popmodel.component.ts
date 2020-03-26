@@ -6,7 +6,7 @@ import { Component, OnInit, Input } from '@angular/core';
       styleUrls: ['./popmodel.component.css']
 })
 export class PopmodelComponent implements OnInit {
-      private keys: string[]
+      public keys: string[]
       @Input('content') content: any;
       constructor() { }
 

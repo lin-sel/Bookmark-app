@@ -11,11 +11,11 @@ import { JsonService } from 'src/app/service/utils/json.service';
 })
 export class CategoryComponent implements OnInit {
 
-      private buttonname: string = "Update";
-      private buttonaction: any;
-      private content: any;
-      private category: FormGroup;
-      private categories: any[];
+      public buttonname: string = "Update";
+      public buttonaction: any;
+      public content: any;
+      public category: FormGroup;
+      public categories: any[];
       constructor(
             private formbuilder: FormBuilder,
             private mainservice: MainService,

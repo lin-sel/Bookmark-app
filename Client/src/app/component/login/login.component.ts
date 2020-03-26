@@ -13,7 +13,7 @@ import { MainService } from 'src/app/service/main.service';
 })
 export class LoginComponent implements OnInit {
 
-      private login: FormGroup
+      public login: FormGroup
       constructor(
             private formbuilder: FormBuilder,
             private router: Router,
@@ -28,8 +28,8 @@ export class LoginComponent implements OnInit {
 
       initForm() {
             this.login = this.formbuilder.group({
-                  username: ['nil', Validators.required],
-                  password: ['nil', Validators.required]
+                  username: ['', Validators.required],
+                  password: ['', Validators.required]
             });
       }
 

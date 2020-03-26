@@ -13,7 +13,7 @@ import { MainService } from 'src/app/service/main.service';
 })
 export class RegisterComponent implements OnInit {
 
-      private register: FormGroup
+      public register: FormGroup
       constructor(
             private formbuilder: FormBuilder,
             private route: Router,

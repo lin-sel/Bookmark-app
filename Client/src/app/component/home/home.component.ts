@@ -10,8 +10,8 @@ import { JsonService } from 'src/app/service/utils/json.service';
       styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
-      private categories: any[]
-      private content: any;
+      public categories: any[]
+      public content: any;
       constructor(
             private mainservice: MainService,
             private router: Router,

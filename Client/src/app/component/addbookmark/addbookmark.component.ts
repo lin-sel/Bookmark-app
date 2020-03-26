@@ -10,7 +10,7 @@ import { MainService } from 'src/app/service/main.service';
 })
 export class AddbookmarkComponent implements OnInit {
 
-      private bookmark: FormGroup;
+      public bookmark: FormGroup;
       constructor(
             private activeroute: ActivatedRoute,
             private formbuilder: FormBuilder,
