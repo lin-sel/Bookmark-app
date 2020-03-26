@@ -15,6 +15,7 @@ export class JsonService {
                   console.log(output);
             }
             catch{
+                  console.log("data")
                   return undefined;
             }
             return output;

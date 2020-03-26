@@ -28,8 +28,7 @@ export class LoginService {
                         this._storage.setByID("userid", respond.id)
                         resolve()
                   }).catch(err => {
-                        reject(err.error)
-                        this._logger.error(this._json.fromStringToJSON(err.error).error)
+                        reject(err)
                   })
             })
       }

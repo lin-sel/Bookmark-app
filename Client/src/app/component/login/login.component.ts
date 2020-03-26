@@ -62,6 +62,7 @@ export class LoginComponent implements OnInit {
       // Error Parser.
       errorParser(err) {
             let er = this.json.fromStringToJSON(err.error);
+            console.log(er)
             if (er != undefined) {
                   return er.error;
             }
