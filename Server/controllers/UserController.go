@@ -34,8 +34,11 @@ func NewUserController(srv *services.UserService) *UserController {
 
 // RouterRgstr Register All Endpoint.
 func (authcntrol *UserController) RouterRgstr(r *mux.Router) {
-	r.HandleFunc("/api/v1/user/register", authcntrol.registerUser).Methods("POST")
-	r.HandleFunc("/api/v1/user/login", authcntrol.login).Methods("POST")
+	r.HandleFunc("/register", authcntrol.registerUser).Methods("POST")
+	r.HandleFunc("/login", authcntrol.login).Methods("POST")
+	r.HandleFunc("/{userid}", authcntrol.get).Methods("GET")
+	r.HandleFunc("/{userid}", authcntrol.delete).Methods("DELETE")
+	r.HandleFunc("/{userid}", authcntrol.update).Methods("PUT")
 }
 
 func (authcntrol *UserController) registerUser(w http.ResponseWriter, r *http.Request) {
@@ -95,10 +98,83 @@ func (authcntrol *UserController) login(w http.ResponseWriter, r *http.Request) 
 	err = authcntrol.authsrv.Login(&user)
 
 	if err != nil {
-		web.RespondError(&w, web.NewValidationError("error", map[string]string{"msg": err.Error()}))
+		web.RespondError(&w, web.NewValidationError("error", map[string]string{"error": err.Error()}))
 		return
 	}
 	authcntrol.GetToken(&user, &w)
+}
+
+func (authcntrol *UserController) update(w http.ResponseWriter, r *http.Request) {
+	param := mux.Vars(r)
+	uid, err := web.ParseID(param["userid"])
+	if err != nil {
+		// web.WriteErrorResponse(&w, web.NewHTTPError(err.Error(), http.StatusBadRequest))
+		web.RespondError(&w, web.NewValidationError("User ID", map[string]string{"error": "Invalid User ID"}))
+		return
+	}
+	user := models.User{}
+	err = web.UnmarshalJSON(r, &user)
+	if err != nil {
+		web.RespondError(&w, web.NewValidationError("Form Parse", map[string]string{"error": "Data can't Handle"}))
+		return
+	}
+
+	if len(user.Getusername()) == 0 {
+		web.RespondError(&w, web.NewValidationError("Require", map[string]string{"error": "username required"}))
+		return
+	}
+	if len(user.Getpassword()) == 0 {
+		web.RespondError(&w, web.NewValidationError("Require", map[string]string{"error": "password required"}))
+		return
+	}
+
+	user.ID = *uid
+
+	err = authcntrol.authsrv.Update(&user)
+
+	if err != nil {
+		web.RespondError(&w, web.NewValidationError("error", map[string]string{"error": err.Error()}))
+		return
+	}
+}
+
+func (authcntrol *UserController) delete(w http.ResponseWriter, r *http.Request) {
+	param := mux.Vars(r)
+	uid, err := web.ParseID(param["userid"])
+	if err != nil {
+		// web.WriteErrorResponse(&w, web.NewHTTPError(err.Error(), http.StatusBadRequest))
+		web.RespondError(&w, web.NewValidationError("User ID", map[string]string{"error": "Invalid User ID"}))
+		return
+	}
+
+	err = authcntrol.authsrv.Delete(uid)
+
+	if err != nil {
+		web.RespondError(&w, web.NewValidationError("error", map[string]string{"error": err.Error()}))
+		return
+	}
+}
+
+func (authcntrol *UserController) get(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Get Called")
+	param := mux.Vars(r)
+	uid, err := web.ParseID(param["userid"])
+	if err != nil {
+		// web.WriteErrorResponse(&w, web.NewHTTPError(err.Error(), http.StatusBadRequest))
+		web.RespondError(&w, web.NewValidationError("User ID", map[string]string{"error": "Invalid User ID"}))
+		return
+	}
+
+	user := models.User{}
+	err = authcntrol.authsrv.Get(uid, &user)
+
+	if err != nil {
+		web.RespondError(&w, web.NewValidationError("error", map[string]string{"error": err.Error()}))
+		return
+	}
+
+	user.Category = []models.Category{}
+	web.RespondJSON(&w, http.StatusOK, user)
 }
 
 // GetToken Return Token
@@ -113,7 +189,7 @@ func (authcntrol *UserController) GetToken(user *models.User, w *http.ResponseWr
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString(secretKey)
 	if err != nil {
-		web.RespondError(w, web.NewValidationError("error", map[string]string{"msg": err.Error()}))
+		web.RespondError(w, web.NewValidationError("error", map[string]string{"error": err.Error()}))
 		return
 	}
 	web.RespondJSON(w, http.StatusOK, Response{Token: tokenString, User: *user})

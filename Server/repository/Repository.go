@@ -30,16 +30,19 @@ func (repo *Repositorysrv) Add(ufw *UnitOfWork, out interface{}) error {
 	return ufw.DB.Create(out).Error
 }
 
-// Get Student By ID
-func (repo *Repositorysrv) Get(ufw *UnitOfWork, out interface{}, uid, bid uuid.UUID, preloadAssociation []string) error {
+// Get Entity By ID
+func (repo *Repositorysrv) Get(ufw *UnitOfWork, out interface{}, uid, bid interface{}, preloadAssociation []string) error {
 	db := ufw.DB
 	for _, association := range preloadAssociation {
 		db = db.Preload(association)
 	}
+	if bid == "" {
+		return ufw.DB.Model(out).Debug().First(out, "id = ?", uid).Error
+	}
 	return db.Debug().Model(out).First(out, "id = ? and user_id = ?", bid, uid).Error
 }
 
-// GetAll Student
+// GetAll Entity
 func (repo *Repositorysrv) GetAll(ufw *UnitOfWork, uid uuid.UUID, out interface{}, preloadAssociation []string) error {
 	db := ufw.DB
 	for _, association := range preloadAssociation {
@@ -48,13 +51,16 @@ func (repo *Repositorysrv) GetAll(ufw *UnitOfWork, uid uuid.UUID, out interface{
 	return db.Model(out).Debug().Find(out, "user_id = ?", uid).Error
 }
 
-// Update Student
+// Update Entity
 func (repo *Repositorysrv) Update(ufw *UnitOfWork, entity interface{}) error {
 	return ufw.DB.Model(entity).Save(entity).Error
 }
 
-// Delete Student From Database
-func (repo *Repositorysrv) Delete(ufw *UnitOfWork, uid, bid uuid.UUID, out interface{}) error {
+// Delete Entity From Database
+func (repo *Repositorysrv) Delete(ufw *UnitOfWork, uid, bid interface{}, out interface{}) error {
+	if bid == "" {
+		return ufw.DB.Model(out).Debug().Delete(out).Error
+	}
 	return ufw.DB.Debug().Model(out).Delete(out, "user_id = ? and id = ?", uid, bid).Error
 }
 

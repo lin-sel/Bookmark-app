@@ -6,6 +6,7 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/lin-sel/bookmark-app/models"
 	"github.com/lin-sel/bookmark-app/repository"
+	uuid "github.com/satori/go.uuid"
 )
 
 // UserService Structure
@@ -46,17 +47,62 @@ func (auth *UserService) Login(user *models.User) error {
 	authuser := models.User{}
 	err := auth.Repository.GetByField(uow, user.Getusername(), "username", "", &authuser, []string{"Category"})
 	if authuser.IsEmpty() {
-		return errors.New("Invalid User")
+		return errors.New("Invalid Username")
 	}
 	if err != nil {
 		uow.Complete()
 		return err
 	}
-	if !checkUserCreadential(user, &authuser) {
-		return errors.New("Invalid User")
+
+	if authuser.GetAttemptime() >= 3 {
+		return errors.New("You attemp to login account number of time with wrong password now your account has blocked. contact Admin")
 	}
-	// uow.Commit()
+	if !checkUserCreadential(user, &authuser) {
+		authuser.Attemptime = authuser.GetAttemptime() + 1
+		auth.Update(&authuser)
+		return errors.New("Invalid Credential to Login")
+	}
+
+	authuser.Attemptime = 0
+	auth.Update(&authuser)
+	uow.Commit()
 	*user = authuser
+	return err
+}
+
+// Get Return User.
+func (auth *UserService) Get(uid *uuid.UUID, user *models.User) error {
+	uow := repository.NewUnitOfWork(auth.DB, true)
+	err := auth.Repository.Get(uow, user, uid, "", []string{})
+	if err != nil {
+		uow.Complete()
+		return err
+	}
+	uow.Commit()
+	return err
+}
+
+// Update Return Auth User.
+func (auth *UserService) Update(user *models.User) error {
+	uow := repository.NewUnitOfWork(auth.DB, true)
+	err := auth.Repository.Update(uow, user)
+	if err != nil {
+		uow.Complete()
+		return err
+	}
+	uow.Commit()
+	return err
+}
+
+// Delete Return Auth User.
+func (auth *UserService) Delete(uid *uuid.UUID) error {
+	uow := repository.NewUnitOfWork(auth.DB, true)
+	err := auth.Repository.Delete(uow, uid, "", models.User{})
+	if err != nil {
+		uow.Complete()
+		return err
+	}
+	uow.Commit()
 	return err
 }
 

@@ -19,7 +19,8 @@ import (
 
 func main() {
 	con := conn()
-	route := mux.NewRouter()
+	muxs := mux.NewRouter()
+	route := muxs.PathPrefix("/api/v1/user").Subrouter()
 	repo := repository.NewRepository()
 	headers := handlers.AllowedHeaders([]string{"Content-Type", "token"})
 	methods := handlers.AllowedMethods([]string{"POST", "PUT", "GET", "DELETE", "OPTION"})
@@ -28,7 +29,7 @@ func main() {
 		Handler:      handlers.CORS(headers, methods, origin)(route),
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
-		Addr:         ":8080",
+		Addr:         ":" + port("SERVERPORT"),
 	}
 	prepareController(con, route, repo)
 
@@ -49,11 +50,46 @@ func main() {
 }
 
 func conn() *gorm.DB {
-	con, err := gorm.Open("mysql", "swabhav:swabhav@tcp(127.0.0.1)/Swabhav?charset=utf8&parseTime=true")
+	fmt.Println(getConncetionString())
+	con, err := gorm.Open("mysql", getConncetionString())
 	if err != nil {
 		fmt.Println(err)
 	}
 	return con
+}
+
+func getConncetionString() string {
+	username := os.Getenv("UNAME")
+	if username == "" {
+		username = "swabhav"
+	}
+	password := os.Getenv("PASSWORD")
+	if password == "" {
+		password = "swabhav"
+	}
+	host := os.Getenv("HOST")
+	if host == "" {
+		host = "127.0.0.1"
+	}
+	database := os.Getenv("DATABASE")
+	if database == "" {
+		database = "Swabhav"
+	}
+	port := port("MYSQLPORT")
+	return username + ":" + password + "@tcp(" + host + ":" + port + ")/" + database + "?charset=utf8&parseTime=true"
+}
+
+func port(key string) string {
+	port := os.Getenv(key)
+	if port == "" {
+		if key == "SERVERPORT" {
+			port = "8080"
+		}
+		if key == "MYSQLPORT" {
+			port = "3306"
+		}
+	}
+	return port
 }
 
 func prepareController(con *gorm.DB, route *mux.Router, repo *repository.Repositorysrv) {

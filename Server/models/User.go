@@ -8,10 +8,12 @@ import (
 // User define Name, Username, Password
 type User struct {
 	Basemodel
-	Name     string     `gorm:"type:varchar(30);" json:"name"`
-	Username string     `gorm:"type:varchar(25);unique_index" json:"username"`
-	Password string     `gorm:"type:varchar(70)" json:"password"`
-	Category []Category `json:"categories"`
+	Name       string     `gorm:"type:varchar(30);" json:"name"`
+	Username   string     `gorm:"type:varchar(25);unique_index" json:"username"`
+	Password   string     `gorm:"type:varchar(70)" json:"password"`
+	Profile    []byte     `gorm:"type:blob" json:"profile"`
+	Attemptime int8       `gorm:"type:int" json:"-"`
+	Category   []Category `json:"categories"`
 }
 
 // NewUserWithID Return user instance with ID
@@ -53,6 +55,11 @@ func (user *User) Getpassword() string {
 // Getname return name
 func (user *User) Getname() string {
 	return user.Name
+}
+
+// GetAttemptime Return number of time attemp.
+func (user *User) GetAttemptime() int8 {
+	return user.Attemptime
 }
 
 // IsEmpty Return true/False
