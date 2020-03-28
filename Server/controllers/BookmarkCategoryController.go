@@ -28,6 +28,7 @@ func (cntrlr *Controller) GetAllCategory(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	categories := []models.Category{}
+	fmt.Println(categories)
 	err = cntrlr.bmcsrv.GetAllBookmarkCategory(*uid, &categories)
 	if err != nil {
 		web.RespondError(&w, err)

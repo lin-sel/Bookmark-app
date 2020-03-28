@@ -8,14 +8,24 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/dgrijalva/jwt-go/request"
 	"github.com/gorilla/mux"
+	"github.com/lin-sel/bookmark-app/models"
 	"github.com/lin-sel/bookmark-app/web"
 	uuid "github.com/satori/go.uuid"
 )
 
-var secretKey = []byte("Private_Key")
+var secretKey []byte
+
+// AuthController Type
+type AuthController struct{}
+
+// NewAuthController return New Instance.
+func NewAuthController(key []byte) *AuthController {
+	secretKey = key
+	return &AuthController{}
+}
 
 // AuthUser Check For Valid User
-func (cntrolr *Controller) AuthUser(h http.Handler) http.Handler {
+func (cntrolr *AuthController) AuthUser(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tokenString, err := request.HeaderExtractor{"token"}.ExtractToken(r)
 		fmt.Println("Token", tokenString)
@@ -71,4 +81,21 @@ func (cntrolr *Controller) AuthUser(h http.Handler) http.Handler {
 			web.RespondError(&w, web.NewHTTPError(err.Error(), http.StatusForbidden))
 		}
 	})
+}
+
+// GetToken Return Token
+func (cntrolr *AuthController) GetToken(user *models.User, w *http.ResponseWriter) (string, error) {
+	// Create a claims map
+	fmt.Println(user.GetuserID())
+	claims := jwt.MapClaims{
+		"username": user.Getusername(),
+		"userID":   user.GetuserID(),
+		"IssuedAt": time.Now().Unix() + session,
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString(secretKey)
+	if err != nil {
+		return "", err
+	}
+	return tokenString, nil
 }

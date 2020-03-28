@@ -14,13 +14,15 @@ import (
 // Controller Structure
 type Controller struct {
 	bmsrv  *services.BookmarkService
+	auth   *AuthController
 	bmcsrv *services.BookmarkCategoryService
 }
 
 // NewController Return Bookmark Controller Object
-func NewController(bookmarkservice *services.BookmarkService, bookmarkcategoryservice *services.BookmarkCategoryService) *Controller {
+func NewController(bookmarkservice *services.BookmarkService, bookmarkcategoryservice *services.BookmarkCategoryService, auth *AuthController) *Controller {
 	return &Controller{
 		bmsrv:  bookmarkservice,
+		auth:   auth,
 		bmcsrv: bookmarkcategoryservice,
 	}
 }
@@ -28,7 +30,7 @@ func NewController(bookmarkservice *services.BookmarkService, bookmarkcategoryse
 // RouterRegstr Register All Endpoint of Bookmark to Router
 func (cntrolr *Controller) RouterRegstr(r *mux.Router) {
 	s := r.PathPrefix("/{userid}").Subrouter()
-	s.Use(cntrolr.AuthUser)
+	s.Use(cntrolr.auth.AuthUser)
 	cntrolr.CategoryRgstr(s)
 	s.HandleFunc("/bookmark", cntrolr.GetAllBookmark).Methods("GET")
 	s.HandleFunc("/bookmark/{bookmarkid}", cntrolr.GetBookmarkByID).Methods("GET")

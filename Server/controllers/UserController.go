@@ -3,9 +3,7 @@ package controllers
 import (
 	"fmt"
 	"net/http"
-	"time"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
 	"github.com/lin-sel/bookmark-app/models"
 	"github.com/lin-sel/bookmark-app/services"
@@ -16,6 +14,7 @@ const session int64 = 600
 
 // UserController Structure
 type UserController struct {
+	auth    *AuthController
 	authsrv *services.UserService
 }
 
@@ -26,8 +25,9 @@ type Response struct {
 }
 
 // NewUserController Return UserController Instance
-func NewUserController(srv *services.UserService) *UserController {
+func NewUserController(srv *services.UserService, auth *AuthController) *UserController {
 	return &UserController{
+		auth:    auth,
 		authsrv: srv,
 	}
 }
@@ -36,9 +36,11 @@ func NewUserController(srv *services.UserService) *UserController {
 func (authcntrol *UserController) RouterRgstr(r *mux.Router) {
 	r.HandleFunc("/register", authcntrol.registerUser).Methods("POST")
 	r.HandleFunc("/login", authcntrol.login).Methods("POST")
-	r.HandleFunc("/{userid}", authcntrol.get).Methods("GET")
-	r.HandleFunc("/{userid}", authcntrol.delete).Methods("DELETE")
-	r.HandleFunc("/{userid}", authcntrol.update).Methods("PUT")
+	s := r.PathPrefix("/{userid}/user").Subrouter()
+	s.Use(authcntrol.auth.AuthUser)
+	s.HandleFunc("", authcntrol.get).Methods("GET")
+	s.HandleFunc("", authcntrol.delete).Methods("DELETE")
+	s.HandleFunc("", authcntrol.update).Methods("PUT")
 }
 
 func (authcntrol *UserController) registerUser(w http.ResponseWriter, r *http.Request) {
@@ -101,7 +103,13 @@ func (authcntrol *UserController) login(w http.ResponseWriter, r *http.Request) 
 		web.RespondError(&w, web.NewValidationError("error", map[string]string{"error": err.Error()}))
 		return
 	}
-	authcntrol.GetToken(&user, &w)
+	token, err := authcntrol.auth.GetToken(&user, &w)
+	if err != nil {
+		web.RespondError(&w, web.NewValidationError("error", map[string]string{"error": err.Error()}))
+		return
+	}
+
+	web.RespondJSON(&w, http.StatusOK, Response{Token: token, User: user})
 }
 
 func (authcntrol *UserController) update(w http.ResponseWriter, r *http.Request) {
@@ -175,22 +183,4 @@ func (authcntrol *UserController) get(w http.ResponseWriter, r *http.Request) {
 
 	user.Category = []models.Category{}
 	web.RespondJSON(&w, http.StatusOK, user)
-}
-
-// GetToken Return Token
-func (authcntrol *UserController) GetToken(user *models.User, w *http.ResponseWriter) {
-	// Create a claims map
-	fmt.Println(user.GetuserID())
-	claims := jwt.MapClaims{
-		"username": user.Getusername(),
-		"userID":   user.GetuserID(),
-		"IssuedAt": time.Now().Unix() + session,
-	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(secretKey)
-	if err != nil {
-		web.RespondError(w, web.NewValidationError("error", map[string]string{"error": err.Error()}))
-		return
-	}
-	web.RespondJSON(w, http.StatusOK, Response{Token: tokenString, User: *user})
 }
