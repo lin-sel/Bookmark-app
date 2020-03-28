@@ -10,6 +10,7 @@ import { Constant } from '../constant';
 })
 export class LoginService {
 
+      private user: any;
       constructor(
             private _http: HttpClient,
             private _constant: Constant,
@@ -20,21 +21,29 @@ export class LoginService {
 
       login(data) {
             return new Promise((resolve, reject) => {
-                  this._http.post(`${this._constant.BASE}/login`, data,
-                        { headers: this.getToken() }
-                  ).toPromise().then((respond: any) => {
-                        this._logger.log(respond)
-                        this._storage.setByID("token", respond.token)
-                        this._storage.setByID("userid", respond.id)
-                        resolve()
-                  }).catch(err => {
-                        reject(err)
-                  })
+                  if (this.user == undefined) {
+                        this._http.post(`${this._constant.BASE}/login`, data,
+                              { headers: this.getToken() }
+                        ).toPromise().then((respond: any) => {
+                              this.user = respond;
+                              this._logger.log(respond)
+                              this._storage.setByID("token", respond.token)
+                              this._storage.setByID("userid", respond.id)
+                              resolve()
+                        }).catch(err => {
+                              reject(err)
+                        })
+                  }
             })
       }
 
       getToken(): HttpHeaders {
             return new HttpHeaders().set('token', `${this._storage.getByID('token')}`);
+      }
+
+
+      getUser() {
+            return this.user;
       }
 }
 

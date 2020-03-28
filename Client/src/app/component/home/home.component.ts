@@ -16,7 +16,9 @@ export class HomeComponent implements OnInit {
             private mainservice: MainService,
             private router: Router,
             private json: JsonService
-      ) { }
+      ) {
+            this.categories = [];
+      }
 
       ngOnInit() {
             if (!this.mainservice.authUser()) {

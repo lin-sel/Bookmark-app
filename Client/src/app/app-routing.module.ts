@@ -7,6 +7,7 @@ import { HomeComponent } from './component/home/home.component';
 import { CategoryComponent } from './component/category/category.component';
 import { EditbookmarkComponent } from './component/editbookmark/editbookmark.component';
 import { AddbookmarkComponent } from './component/addbookmark/addbookmark.component';
+import { ProfileComponent } from './component/profile/profile.component';
 
 
 
@@ -19,6 +20,7 @@ const appRoutes: Routes = [
             redirectTo: '/login',
             pathMatch: 'full'
       },
+      { path: "profile", component: ProfileComponent },
       { path: 'addbookmark/:id', component: AddbookmarkComponent },
       { path: 'editbookmark/:id', component: EditbookmarkComponent },
       { path: 'category', component: CategoryComponent },

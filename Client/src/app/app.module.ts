@@ -16,6 +16,7 @@ import { ViewComponent } from './model/view/view.component';
 import { CategoryComponent } from './component/category/category.component';
 import { EditbookmarkComponent } from './component/editbookmark/editbookmark.component';
 import { AddbookmarkComponent } from './component/addbookmark/addbookmark.component';
+import { ProfileComponent } from './component/profile/profile.component';
 
 
 @NgModule({
@@ -31,6 +32,7 @@ import { AddbookmarkComponent } from './component/addbookmark/addbookmark.compon
             CategoryComponent,
             EditbookmarkComponent,
             AddbookmarkComponent,
+            ProfileComponent
       ],
       imports: [
             BrowserModule,

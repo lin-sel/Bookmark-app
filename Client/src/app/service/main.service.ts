@@ -4,6 +4,7 @@ import { CategoryService } from './category/category.service';
 import { StorageService } from './utils/storage.service';
 import { LoginService } from './login/login.service';
 import { RegisterService } from './register/register.service';
+import { UserService } from './user/user.service';
 
 @Injectable({
       providedIn: 'root'
@@ -15,7 +16,8 @@ export class MainService {
             private category: CategoryService,
             private storage: StorageService,
             private login: LoginService,
-            private register: RegisterService
+            private register: RegisterService,
+            private user: UserService
       ) {
             this.authUser()
       }
@@ -81,6 +83,18 @@ export class MainService {
 
       userRegister(data) {
             return this.register.register(data);
+      }
+
+      getUser() {
+            return this.user.get(true)
+      }
+
+      updateUser(data: any) {
+            return this.user.update(data)
+      }
+
+      deleteUser(userid) {
+            return this.user.delete(userid)
       }
 
 

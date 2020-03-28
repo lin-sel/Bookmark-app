@@ -1,0 +1,93 @@
+<app-navbar></app-navbar>
+<div class="root center" *ngIf="!edit">
+      <div class="row" style="background-color: red;">
+            <div class="col-6" style="background-color: blue;">
+                  <div class="col-style center">
+                        <img [src]="profileIMG()" width="180px">
+                  </div>
+            </div>
+            <div class="col-6" style="background-color: whitesmoke;">
+                  <button class="editButton" (click)="editProfile()"><i class="fas fa-pen"></i></button>
+                  <div class="col-style center">
+                        <div class="form-group">
+                              <label for="username">Name<sup class="text-red">*</sup></label>
+                              <input type="text" [value]="userdata && userdata.name" disabled class="form-control"
+                                    placeholder="">
+                        </div>
+                        <div class="form-group">
+                              <label for="username">Username<sup class="text-red">*</sup></label>
+                              <input type="text" [value]="userdata && userdata.username" disabled class="form-control"
+                                    placeholder="">
+                        </div>
+                        <div class="form-group">
+                              <label for="username">Email<sup class="text-red">*</sup></label>
+                              <input type="text" [value]="userdata && userdata.email" disabled class="form-control"
+                                    placeholder="">
+                        </div>
+                  </div>
+            </div>
+      </div>
+</div>
+
+<div class="root" *ngIf="edit == true">
+      <div class="sub-div">
+            <h4>Update Profile</h4>
+            <form enctype="multipart/form-data" [formGroup]="user">
+                  <!-- <div class="form-group">
+                        <label for="username">Profile Image<sup class="text-red">*</sup></label>
+                        <input type="file" formControlName="profile" class="form-control"
+                              placeholder="choice Profile image">
+                  </div>
+                  <div *ngIf="f.name.errors && f.name.touched" class="text-red">
+                        <div *ngIf="f.name.errors.required">
+                              name required*
+                        </div>
+                  </div> -->
+                  <div class="form-group">
+                        <label for="username">Name<sup class="text-red">*</sup></label>
+                        <input type="text" formControlName="name" class="form-control" placeholder="Name">
+                  </div>
+                  <div *ngIf="f.name.errors && f.name.touched" class="text-red">
+                        <div *ngIf="f.name.errors.required">
+                              name required*
+                        </div>
+                  </div>
+                  <div class="form-group">
+                        <label for="username">Email<sup class="text-red">*</sup></label>
+                        <input type="email" formControlName="email" class="form-control" placeholder="Email">
+                  </div>
+                  <div *ngIf="f.email.errors && f.email.touched" class="text-red">
+                        <div *ngIf="f.email.errors.required">
+                              email required*
+                        </div>
+                  </div>
+                  <div class="form-group">
+                        <label for="username">Username<sup class="text-red">*</sup></label>
+                        <input type="text" formControlName="username" class="form-control" placeholder="Username">
+                  </div>
+                  <div *ngIf="f.username.errors && f.username.touched" class="text-red">
+                        <div *ngIf="f.username.errors.required">
+                              username required*
+                        </div>
+                  </div>
+                  <div class="form-group">
+                        <label for="username">Password<sup class="text-red">*</sup></label>
+                        <input type="password" formControlName="password" class="form-control" placeholder="Username">
+                  </div>
+                  <div *ngIf="f.password.errors && f.password.touched" class="text-red">
+                        <div *ngIf="f.password.errors.required">
+                              password required*
+                        </div>
+                  </div>
+                  <div class="row">
+                        <div class="col">
+                              <button type="button" [disabled]="user.invalid || !user.touched" (click)="update()"
+                                    class="btn btn-success">Update</button>
+                        </div>
+                        <div class="col">
+                              <button type="button" (click)="editProfile()" class="btn btn-success">Cancel</button>
+                        </div>
+                  </div>
+            </form>
+      </div>
+</div>

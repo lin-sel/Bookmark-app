@@ -20,3 +20,7 @@
     ::-webkit-scrollbar-thumb:hover {
       background: #b30000; 
     }
+
+body{
+      overflow-x: hidden;
+}
