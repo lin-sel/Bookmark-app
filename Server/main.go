@@ -93,11 +93,19 @@ func port(key string) string {
 }
 
 func prepareController(con *gorm.DB, route *mux.Router, repo *repository.Repositorysrv) {
+	auth := controllers.NewAuthController([]byte(getSecurityKey()))
 	authservice := services.NewUserService(con, repo)
 	bookmarkcategoryservice := services.NewBookmarkCategoryService(repo, con)
 	bookmarkservice := services.NewBookmarkService(repo, con)
-	authcontroller := controllers.NewUserController(authservice)
-	bookmarkcontroller := controllers.NewController(bookmarkservice, bookmarkcategoryservice)
+	authcontroller := controllers.NewUserController(authservice, auth)
+	bookmarkcontroller := controllers.NewController(bookmarkservice, bookmarkcategoryservice, auth)
 	authcontroller.RouterRgstr(route)
 	bookmarkcontroller.RouterRegstr(route)
+}
+
+func getSecurityKey() string {
+	if key := os.Getenv("SECURITYKEY"); key != "" {
+		return key
+	}
+	return "mykey"
 }

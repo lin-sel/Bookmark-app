@@ -14,6 +14,7 @@ func UnmarshalJSON(r *http.Request, target interface{}) error {
 		return errors.New("There is problem while reading data")
 	}
 
+	fmt.Println(r.Body)
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		// microLog.Logger.Errorf("%#v", err)
