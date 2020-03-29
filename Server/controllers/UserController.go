@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -137,7 +136,6 @@ func (authcntrol *UserController) update(w http.ResponseWriter, r *http.Request)
 	}
 
 	user.ID = *uid
-
 	err = authcntrol.authsrv.Update(&user)
 
 	if err != nil {
@@ -164,7 +162,6 @@ func (authcntrol *UserController) delete(w http.ResponseWriter, r *http.Request)
 }
 
 func (authcntrol *UserController) get(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Get Called")
 	param := mux.Vars(r)
 	uid, err := web.ParseID(param["userid"])
 	if err != nil {

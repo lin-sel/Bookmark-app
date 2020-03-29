@@ -28,7 +28,6 @@ func NewAuthController(key []byte) *AuthController {
 func (cntrolr *AuthController) AuthUser(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tokenString, err := request.HeaderExtractor{"token"}.ExtractToken(r)
-		fmt.Println("Token", tokenString)
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			// Don't forget to validate the alg is what you expect:
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
