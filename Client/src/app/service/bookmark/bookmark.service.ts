@@ -24,13 +24,13 @@ export class BookmarkService {
 
       getAll(check: boolean) {
             return new Promise((resolve, reject) => {
-                  if (this.categorywithbookmark.length == 0 || !check) {
+                  if (!check || this.categorywithbookmark.length == 0) {
                         this._http.get(`${this._constant.BASE}/${this._storage.getByID("userid")}/category`,
                               { headers: this.getToken() },
                         ).toPromise().then((respond: any) => {
                               this._logger.info(respond)
                               this.categorywithbookmark = respond;
-                              resolve(respond)
+                              resolve(this.categorywithbookmark);
                               console.log(respond);
                         }).catch(err => {
                               this._logger.error(err)
@@ -50,7 +50,7 @@ export class BookmarkService {
                         { headers: this.getToken() },
                   ).toPromise().then((respond: any) => {
                         this._logger.info(respond)
-                        this.getAll(false);
+                        this.updateByID(data)
                         resolve(respond)
                   }).catch(err => {
                         this._logger.error(err)
@@ -69,6 +69,16 @@ export class BookmarkService {
                   }
             }
             return undefined;
+      }
+
+      updateByID(bookmark: any) {
+            for (let index = 0; index < this.categorywithbookmark.length; index++) {
+                  for (let i = 0; i < this.categorywithbookmark[index].bookmarks.length; i++) {
+                        if (this.categorywithbookmark[index].bookmarks[i].id == bookmark.id) {
+                              this.categorywithbookmark[index].bookmarks[i] = bookmark;
+                        }
+                  }
+            }
       }
 
       addBookmark(data) {

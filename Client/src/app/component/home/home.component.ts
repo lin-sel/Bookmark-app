@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { BookmarkService } from 'src/app/service/bookmark/bookmark.service';
 import { MainService } from 'src/app/service/main.service';
 import { JsonService } from 'src/app/service/utils/json.service';
+import { UtilService } from 'src/app/service/utils/util.service';
 
 @Component({
       selector: 'app-home',
@@ -12,12 +13,17 @@ import { JsonService } from 'src/app/service/utils/json.service';
 export class HomeComponent implements OnInit {
       public categories: any[]
       public content: any;
+      public loader: any;
       constructor(
             private mainservice: MainService,
             private router: Router,
-            private json: JsonService
+            private util: UtilService
       ) {
             this.categories = [];
+            this.loader = {
+                  loader: "loader",
+                  body: "hide"
+            }
       }
 
       ngOnInit() {
@@ -43,6 +49,8 @@ export class HomeComponent implements OnInit {
                   alert(error);
                   console.log(error)
                   this.isSessionExpire(error);
+            }).finally(() => {
+                  this.configLoader();
             });
       }
 
@@ -73,6 +81,9 @@ export class HomeComponent implements OnInit {
                         alert(error);
                         console.log(error)
                         this.isSessionExpire(error);
+                  }).finally(() => {
+                        this.configLoader();
+                        this.util.reload();
                   });
             }
       }
@@ -80,7 +91,8 @@ export class HomeComponent implements OnInit {
 
       // Navigate to another url.
       navigate(path: string, id: string) {
-            this.router.navigate([path, id]);
+            this.util.navigateWithParam(path, id);
+            // this.router.navigate([path, id]);
       }
 
       // Return All Keys Of Object.
@@ -90,19 +102,25 @@ export class HomeComponent implements OnInit {
 
       // Error Parser.
       errorParser(err) {
-            let er = this.json.fromStringToJSON(err.error);
-            if (er != undefined) {
-                  return er.error;
-            }
-            return err.error;
+            // let er = this.json.fromStringToJSON(err.error);
+            // if (er != undefined) {
+            //       return er.error;
+            // }
+            // return err.error;
+            return this.util.errorParser(err)
       }
 
       // Check Session Expire and Perform Accordingly
       isSessionExpire(s: string) {
-            console.log(this.mainservice.isSessionExpire(s))
-            if (this.mainservice.isSessionExpire(s)) {
-                  this.router.navigate(["login"]);
-            }
+            // console.log(this.mainservice.isSessionExpire(s))
+            // if (this.mainservice.isSessionExpire(s)) {
+            //       this.router.navigate(["login"]);
+            // }
+            this.util.isSessionExpire(s);
+      }
+
+      configLoader() {
+            this.util.configLoader(this.loader)
       }
 
 }

@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, Validators, FormGroup } from '@angular/forms';
 import { JsonService } from 'src/app/service/utils/json.service';
 import { MainService } from 'src/app/service/main.service';
+import { UtilService } from 'src/app/service/utils/util.service';
 @Component({
       selector: 'app-addbookmark',
       templateUrl: './addbookmark.component.html',
@@ -10,19 +11,20 @@ import { MainService } from 'src/app/service/main.service';
 })
 export class AddbookmarkComponent implements OnInit {
 
+      public loader: string = "loader"
       public bookmark: FormGroup;
+      public body: string = "hide";
       constructor(
             private activeroute: ActivatedRoute,
             private formbuilder: FormBuilder,
-            private json: JsonService,
             private mainservice: MainService,
-            private router: Router
+            private util: UtilService
       ) { }
 
       ngOnInit() {
             if (!this.mainservice.authUser()) {
                   alert("PLease Login First.");
-                  this.router.navigate(["login"]);
+                  this.util.navigate("login");
                   return;
             }
             this.getParam();
@@ -37,11 +39,12 @@ export class AddbookmarkComponent implements OnInit {
       // Form Object Created.
       initForm(categoryid) {
             this.bookmark = this.formbuilder.group({
-                  url: ['', Validators.required],
+                  url: ['', [Validators.required, Validators.pattern(/^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/g)]],
                   tag: ['', Validators.required],
                   label: ['', Validators.required],
                   categoryid: [categoryid, Validators.required]
             });
+            this.configLoader();
       }
 
 
@@ -56,6 +59,9 @@ export class AddbookmarkComponent implements OnInit {
                   alert(error);
                   console.log(error)
                   this.isSessionExpire(error);
+            }).finally(() => {
+                  this.configLoader();
+                  this.util.reload();
             })
       }
 
@@ -66,24 +72,36 @@ export class AddbookmarkComponent implements OnInit {
 
       // Navigate to Another URL.
       navigate(path: string) {
-            this.router.navigate([path])
+            this.util.navigate(path)
       }
 
       // Error Parser.
       errorParser(err) {
-            let er = this.json.fromStringToJSON(err.error);
-            if (er != undefined) {
-                  return er.error;
-            }
-            return err.error;
+            // let er = this.json.fromStringToJSON(err.error);
+            // if (er != undefined) {
+            //       return er.error;
+            // }
+            // return err.error;
+            return this.util.errorParser(err);
       }
 
       // Check Session Expire and Perform Accordingly
       isSessionExpire(s: string) {
-            console.log(this.mainservice.isSessionExpire(s))
-            if (this.mainservice.isSessionExpire(s)) {
-                  this.router.navigate(["login"]);
+            // console.log(this.mainservice.isSessionExpire(s))
+            // if (this.mainservice.isSessionExpire(s)) {
+            //       this.router.navigate(["login"]);
+            // }
+            this.util.isSessionExpire(s);
+      }
+
+      configLoader() {
+            let obj = {
+                  loader: this.loader,
+                  body: this.body
             }
+            this.util.configLoader(obj)
+            this.loader = obj.loader
+            this.body = obj.body
       }
 
 

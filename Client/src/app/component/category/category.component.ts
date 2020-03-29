@@ -3,6 +3,7 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MainService } from 'src/app/service/main.service';
 import { JsonService } from 'src/app/service/utils/json.service';
+import { UtilService } from 'src/app/service/utils/util.service';
 
 @Component({
       selector: 'app-category',
@@ -11,6 +12,7 @@ import { JsonService } from 'src/app/service/utils/json.service';
 })
 export class CategoryComponent implements OnInit {
 
+      public loader: any;
       public buttonname: string = "Update";
       public buttonaction: any;
       public content: any;
@@ -19,14 +21,18 @@ export class CategoryComponent implements OnInit {
       constructor(
             private formbuilder: FormBuilder,
             private mainservice: MainService,
-            private router: Router,
-            private json: JsonService
-      ) { }
+            private util: UtilService
+      ) {
+            this.loader = {
+                  loader: "loader",
+                  body: "hide"
+            }
+      }
 
       ngOnInit() {
             if (!this.mainservice.authUser()) {
                   alert("Please Login First.");
-                  this.router.navigate(["login"]);
+                  this.util.navigate("login")
                   return;
             }
             this.initForm();
@@ -62,6 +68,8 @@ export class CategoryComponent implements OnInit {
                   alert(error);
                   console.log(error)
                   this.isSessionExpire(error);
+            }).finally(() => {
+                  this.configLoader();
             })
       }
 
@@ -74,6 +82,7 @@ export class CategoryComponent implements OnInit {
 
       // Update Selected Category.
       updateCategory() {
+            this.configLoader();
             console.log(this.content);
             this.mainservice.updateCategoy(this.category.value, this.content.id).then(data => {
                   alert("Updated");
@@ -82,11 +91,15 @@ export class CategoryComponent implements OnInit {
                   alert(error);
                   console.log(error)
                   this.isSessionExpire(error);
+            }).finally(() => {
+                  this.configLoader();
+                  this.util.reload();
             })
       }
 
       // Delete Selected Category.
       deleteCategory() {
+            this.configLoader();
             this.mainservice.deleteCategory(this.content.id).then(data => {
                   alert("Deleted Successfully");
             }).catch(err => {
@@ -94,11 +107,15 @@ export class CategoryComponent implements OnInit {
                   alert(error);
                   console.log(error)
                   this.isSessionExpire(error);
+            }).finally(() => {
+                  this.configLoader();
+                  this.util.reload();
             })
       }
 
       // Add New Category.
       addCategory() {
+            this.configLoader();
             this.mainservice.addCategory(this.category.value).then(data => {
                   alert("Added");
             }).catch(err => {
@@ -106,6 +123,9 @@ export class CategoryComponent implements OnInit {
                   alert(error);
                   console.log(error)
                   this.isSessionExpire(error);
+            }).finally(() => {
+                  this.configLoader();
+                  this.util.reload();
             })
       }
 
@@ -123,19 +143,25 @@ export class CategoryComponent implements OnInit {
 
       // Error Parser.
       errorParser(err) {
-            let er = this.json.fromStringToJSON(err.error);
-            if (er != undefined) {
-                  return er.error;
-            }
-            return err.error;
+            // let er = this.json.fromStringToJSON(err.error);
+            // if (er != undefined) {
+            //       return er.error;
+            // }
+            // return err.error;
+            return this.util.errorParser(err);
       }
 
       // Check Session Expire and Perform Accordingly
       isSessionExpire(s: string) {
-            console.log(this.mainservice.isSessionExpire(s))
-            if (this.mainservice.isSessionExpire(s)) {
-                  this.router.navigate(["login"]);
-            }
+            // console.log(this.mainservice.isSessionExpire(s))
+            // if (this.mainservice.isSessionExpire(s)) {
+            //       this.router.navigate(["login"]);
+            // }
+            this.util.isSessionExpire(s);
+      }
+
+      configLoader() {
+            this.util.configLoader(this.loader)
       }
 
 }

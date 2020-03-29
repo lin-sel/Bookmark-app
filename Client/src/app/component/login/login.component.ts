@@ -5,6 +5,7 @@ import { LoginService } from 'src/app/service/login/login.service';
 import { LoggerService } from 'src/app/service/utils/logger.service';
 import { JsonService } from 'src/app/service/utils/json.service';
 import { MainService } from 'src/app/service/main.service';
+import { UtilService } from 'src/app/service/utils/util.service';
 
 @Component({
       selector: 'app-login',
@@ -14,16 +15,17 @@ import { MainService } from 'src/app/service/main.service';
 export class LoginComponent implements OnInit {
 
       public login: FormGroup
+      public loader: string = 'loader'
       constructor(
             private formbuilder: FormBuilder,
-            private router: Router,
+            private util: UtilService,
             private mainservice: MainService,
             private logger: LoggerService,
-            private json: JsonService
       ) { }
 
       ngOnInit() {
             this.initForm()
+            this.configLoader()
       }
 
       initForm() {
@@ -42,6 +44,7 @@ export class LoginComponent implements OnInit {
 
       // Login to App.
       appLogin() {
+            this.configLoader()
             console.log(this.login.value);
             this.mainservice.appLogin(this.login.value).then(() => {
                   this.logger.log("Login done")
@@ -51,21 +54,26 @@ export class LoginComponent implements OnInit {
                   let error = this.errorParser(err);
                   alert(error);
                   console.log(error)
+            }).finally(() => {
+                  this.configLoader();
             });
       }
 
       // Navigate to Another URL.
       navigate(path: string) {
-            this.router.navigate([path]);
+            this.util.navigate(path);
       }
 
       // Error Parser.
       errorParser(err) {
-            let er = this.json.fromStringToJSON(err.error);
-            console.log(er)
-            if (er != undefined) {
-                  return er.error;
+            return this.util.errorParser(err);
+      }
+
+      configLoader() {
+            let obj = {
+                  loader: this.loader
             }
-            return err.error;
+            this.util.configLoader(obj)
+            this.loader = obj.loader
       }
 }
