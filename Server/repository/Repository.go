@@ -10,12 +10,12 @@ import (
 
 // Repository Struct
 type Repository interface {
-	GetAll(ufw *UnitOfWork, uid uuid.UUID, out interface{}, preloadAssociation []string) error
-	Get(ufw *UnitOfWork, out interface{}, uid uuid.UUID, bid uuid.UUID, preloadAssociation []string) error
+	GetAll(ufw *UnitOfWork, id uuid.UUID, out interface{}, preloadAssociation []string) error
+	Get(ufw *UnitOfWork, out interface{}, id uuid.UUID, preloadAssociation []string) error
 	Add(ufw *UnitOfWork, input interface{}) error
-	Delete(ufw *UnitOfWork, uid uuid.UUID, bid uuid.UUID, out interface{}) error
-	Update(ufw *UnitOfWork, uid uuid.UUID, out interface{}) error
-	GetByField(ufw *UnitOfWork, value interface{}, condition string, preloadAssociation []string) error
+	Delete(ufw *UnitOfWork, id uuid.UUID, out interface{}) error
+	Update(ufw *UnitOfWork, id uuid.UUID, out interface{}) error
+	GetByField(ufw *UnitOfWork, value interface{}, fieldname string, preloadAssociation []string) error
 }
 
 // Repositorysrv Return new Service
@@ -109,8 +109,4 @@ func (repo *Repositorysrv) GetByField(ufw *UnitOfWork, value interface{}, fieldn
 		return db.Model(out).Debug().First(out, fmt.Sprintf("%s = ? and user_id = ?", fieldname), value, (*category)[0].UserID).Error
 	}
 	return errors.New("Unknown error Occur")
-	// if uid == "" {
-	// 	return db.Model(out).Debug().First(out, fmt.Sprintf("%s = ?", fieldname), value).Error
-	// }
-	// return db.Model(out).First(out, fmt.Sprintf("%s = ? and user_id = ?", fieldname), value, uid).Error
 }
