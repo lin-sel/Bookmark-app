@@ -9,7 +9,7 @@ import (
 	"github.com/lin-sel/bookmark-app/web"
 )
 
-const session int64 = 600
+const session int64 = 3600
 
 // UserController Structure
 type UserController struct {
@@ -170,7 +170,7 @@ func (authcntrol *UserController) get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := models.User{}
+	user := []models.User{*models.NewUserWithID(*uid)}
 	err = authcntrol.authsrv.Get(uid, &user)
 
 	if err != nil {
@@ -178,6 +178,5 @@ func (authcntrol *UserController) get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user.Category = []models.Category{}
 	web.RespondJSON(&w, http.StatusOK, user)
 }

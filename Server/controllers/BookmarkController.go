@@ -49,7 +49,7 @@ func (cntrolr *Controller) GetAllBookmark(w http.ResponseWriter, r *http.Request
 		web.RespondError(&w, web.NewValidationError("User ID", map[string]string{"error": "Invalid User ID"}))
 		return
 	}
-	bookmarks := []models.Bookmark{}
+	bookmarks := []models.Bookmark{*models.NewBookmarkWithUserID(*uid)}
 	err = cntrolr.bmsrv.GetAllBookmark(*uid, &bookmarks)
 	if err != nil {
 		web.RespondError(&w, err)
@@ -73,7 +73,7 @@ func (cntrolr *Controller) GetBookmarkByID(w http.ResponseWriter, r *http.Reques
 		web.RespondError(&w, web.NewValidationError("error", map[string]string{"msg": err.Error()}))
 		return
 	}
-	bookmark := []models.Bookmark{}
+	bookmark := []models.Bookmark{models.Bookmark{}}
 	err = cntrolr.bmsrv.GetBookmark(*uid, *bid, &bookmark)
 	if err != nil {
 		web.RespondError(&w, err)
@@ -90,14 +90,14 @@ func (cntrolr *Controller) GetBookmarkByCategory(w http.ResponseWriter, r *http.
 		web.RespondError(&w, web.NewValidationError("User ID", map[string]string{"error": "Invalid User ID"}))
 		return
 	}
-	var bid *uuid.UUID
-	bid, err = web.ParseID(param["categoryid"])
+	var cid *uuid.UUID
+	cid, err = web.ParseID(param["categoryid"])
 	if err != nil {
 		web.RespondError(&w, web.NewValidationError("error", map[string]string{"msg": "Invalid Category ID"}))
 		return
 	}
-	bookmarks := []models.Bookmark{}
-	err = cntrolr.bmsrv.GetBookmarkByCategory(*uid, *bid, &bookmarks)
+	bookmarks := []models.Bookmark{*models.NewBookmarkWithUserID(*uid)}
+	err = cntrolr.bmsrv.GetBookmarkByCategory(*cid, &bookmarks)
 	if err != nil {
 		web.RespondError(&w, err)
 		return
@@ -151,8 +151,8 @@ func (cntrolr *Controller) DeleteBookmark(w http.ResponseWriter, r *http.Request
 		web.RespondError(&w, web.NewValidationError("error", map[string]string{"msg": err.Error()}))
 		return
 	}
-
-	err = cntrolr.bmsrv.DeleteBookmark(*uid, *id)
+	bookmark := models.NewBookmarkWithUserID(*uid)
+	err = cntrolr.bmsrv.DeleteBookmark(*id, bookmark)
 	if err != nil {
 		web.RespondError(&w, err)
 		return

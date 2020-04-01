@@ -27,8 +27,7 @@ func (cntrlr *Controller) GetAllCategory(w http.ResponseWriter, r *http.Request)
 		web.RespondError(&w, web.NewValidationError("Invalid User ID", map[string]string{"error": "Invalid User ID"}))
 		return
 	}
-	categories := []models.Category{}
-	fmt.Println(categories)
+	categories := []models.Category{*models.NewCategoryWithUserID(*uid)}
 	err = cntrlr.bmcsrv.GetAllBookmarkCategory(*uid, &categories)
 	if err != nil {
 		web.RespondError(&w, err)
@@ -51,7 +50,7 @@ func (cntrlr *Controller) GetCategoryByID(w http.ResponseWriter, r *http.Request
 		web.RespondError(&w, web.NewValidationError("require", map[string]string{"error": "Category ID Required"}))
 		return
 	}
-	categories := []models.Category{}
+	categories := []models.Category{*models.NewCategoryWithUserID(*uid)}
 	err = cntrlr.bmcsrv.GetBookmarkCategory(*uid, *cid, &categories)
 	if err != nil {
 		web.RespondError(&w, err)
@@ -64,7 +63,7 @@ func (cntrlr *Controller) GetCategoryByID(w http.ResponseWriter, r *http.Request
 func (cntrlr *Controller) AddCategory(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["userid"]
 	uid, err := web.ParseID(id)
-	category := models.Category{}
+	category := *models.NewCategoryWithUserID(*uid)
 	err = web.UnmarshalJSON(r, &category)
 	if err != nil {
 		web.RespondError(&w, web.NewValidationError("Form Parse", map[string]string{"error": "data can't handle"}))
@@ -75,7 +74,7 @@ func (cntrlr *Controller) AddCategory(w http.ResponseWriter, r *http.Request) {
 		web.RespondError(&w, web.NewValidationError("Require", map[string]string{"error": "Category Name Required"}))
 		return
 	}
-	category.UserID = *uid
+	// category.UserID = *uid
 	category.ID = web.GetUUID()
 	err = cntrlr.bmcsrv.AddBookmarkCategory(&category)
 	if err != nil {
@@ -88,7 +87,6 @@ func (cntrlr *Controller) AddCategory(w http.ResponseWriter, r *http.Request) {
 
 // UpdateCategory Update Category
 func (cntrlr *Controller) UpdateCategory(w http.ResponseWriter, r *http.Request) {
-	category := models.Category{}
 	param := mux.Vars(r)
 
 	uid, err := web.ParseID(param["userid"])
@@ -96,6 +94,7 @@ func (cntrlr *Controller) UpdateCategory(w http.ResponseWriter, r *http.Request)
 		web.RespondError(&w, web.NewValidationError("Form Parse", map[string]string{"error": "data can't handle"}))
 		return
 	}
+	category := *models.NewCategoryWithUserID(*uid)
 
 	var id *uuid.UUID
 	id, err = web.ParseID(param["categoryid"])
@@ -114,7 +113,7 @@ func (cntrlr *Controller) UpdateCategory(w http.ResponseWriter, r *http.Request)
 		web.RespondError(&w, web.NewValidationError("require", map[string]string{"error": "Category ID Required"}))
 		return
 	}
-	category.UserID = *uid
+	// category.UserID = *uid
 	err = cntrlr.bmcsrv.UpdateBookmarkCategory(&category)
 	if err != nil {
 		web.RespondError(&w, err)
@@ -137,8 +136,8 @@ func (cntrlr *Controller) DeleteCategory(w http.ResponseWriter, r *http.Request)
 		web.RespondError(&w, web.NewValidationError("Category ID", map[string]string{"error": "Invalid Category ID"}))
 		return
 	}
-
-	err = cntrlr.bmcsrv.DeleteBookmarkCategory(*uid, *id)
+	category := *models.NewCategoryWithUserID(*uid)
+	err = cntrlr.bmcsrv.DeleteBookmarkCategory(*uid, *id, &category)
 	if err != nil {
 		web.RespondError(&w, err)
 		return
