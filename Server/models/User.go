@@ -17,11 +17,20 @@ type User struct {
 	Category   []Category  `json:"categories"`
 }
 
-// NewUserWithID Return user instance with ID
-func NewUserWithID() *User {
+// NewUserWithNewID Return user instance with ID
+func NewUserWithNewID() *User {
 	return &User{
 		Basemodel: Basemodel{
 			ID: web.GetUUID(),
+		},
+	}
+}
+
+// NewUserWithID Return user with existing user id.
+func NewUserWithID(uid uuid.UUID) *User {
+	return &User{
+		Basemodel: Basemodel{
+			ID: uid,
 		},
 	}
 }

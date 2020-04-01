@@ -15,15 +15,9 @@ type Bookmark struct {
 	CategoryID uuid.UUID `gorm:"type:varchar(40);not_null" json:"categoryid"`
 }
 
-// NewBookmark return Bookmark Struct
-func NewBookmark(label string, url string, tag string, userid uuid.UUID) *Bookmark {
+// NewBookmarkWithUserID return Bookmark Struct
+func NewBookmarkWithUserID(userid uuid.UUID) *Bookmark {
 	return &Bookmark{
-		Basemodel: Basemodel{
-			ID: web.GetUUID(),
-		},
-		Label:  label,
-		Tag:    tag,
-		URL:    url,
 		UserID: userid,
 	}
 }

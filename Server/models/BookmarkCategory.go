@@ -1,25 +1,20 @@
 package models
 
 import (
-	"github.com/lin-sel/bookmark-app/web"
 	uuid "github.com/satori/go.uuid"
 )
 
 // Category Structure
 type Category struct {
 	Basemodel
-	CName    string     `gorm:"type:varchar(100)" json:"category"`
-	UserID   uuid.UUID  `gorm:"type:varchar(40);not_null" json:"-"`
+	CName    string     `gorm:"type:varchar(100);unique:name_userid" json:"category"`
+	UserID   uuid.UUID  `gorm:"type:varchar(40);not_null;unique:name_userid" json:"-"`
 	Bookmark []Bookmark `json:"bookmarks"`
 }
 
-// NewCategory Return Category Object
-func NewCategory(name string, userid uuid.UUID) *Category {
+// NewCategoryWithUserID Return Category Object
+func NewCategoryWithUserID(userid uuid.UUID) *Category {
 	return &Category{
-		Basemodel: Basemodel{
-			ID: web.GetUUID(),
-		},
-		CName:  name,
 		UserID: userid,
 	}
 }
