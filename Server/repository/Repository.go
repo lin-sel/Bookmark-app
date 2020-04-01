@@ -1,8 +1,10 @@
 package repository
 
 import (
+	"errors"
 	"fmt"
 
+	"github.com/lin-sel/bookmark-app/models"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -31,24 +33,43 @@ func (repo *Repositorysrv) Add(ufw *UnitOfWork, out interface{}) error {
 }
 
 // Get Entity By ID
-func (repo *Repositorysrv) Get(ufw *UnitOfWork, out interface{}, uid, bid interface{}, preloadAssociation []string) error {
+func (repo *Repositorysrv) Get(ufw *UnitOfWork, out interface{}, id uuid.UUID, preloadAssociation []string) error {
 	db := ufw.DB
 	for _, association := range preloadAssociation {
 		db = db.Preload(association)
 	}
-	if bid == "" {
-		return ufw.DB.Model(out).Debug().First(out, "id = ?", uid).Error
+
+	switch out.(type) {
+	case *[]models.User:
+		return ufw.DB.Model(out).Debug().First(out, "id = ?", id).Error
+	case *[]models.Bookmark:
+		bookmark := out.(*[]models.Bookmark)
+		return db.Model(out).Debug().First(out, "id = ? and user_id = ?", id, (*bookmark)[0].UserID).Error
+	case *[]models.Category:
+		category := out.(*[]models.Category)
+		return db.Model(out).Debug().First(out, "id = ? and user_id = ?", id, (*category)[0].UserID).Error
 	}
-	return db.Debug().Model(out).First(out, "id = ? and user_id = ?", bid, uid).Error
+	return errors.New("Unknown Error Occur")
 }
 
 // GetAll Entity
-func (repo *Repositorysrv) GetAll(ufw *UnitOfWork, uid uuid.UUID, out interface{}, preloadAssociation []string) error {
+func (repo *Repositorysrv) GetAll(ufw *UnitOfWork, id uuid.UUID, out interface{}, preloadAssociation []string) error {
 	db := ufw.DB
 	for _, association := range preloadAssociation {
 		db = db.Preload(association)
 	}
-	return db.Model(out).Debug().Find(out, "user_id = ?", uid).Error
+	switch out.(type) {
+	case *[]models.User:
+		return db.Model(out).Debug().Find(out).Error
+	case *[]models.Bookmark:
+		bookmark := out.(*[]models.Bookmark)
+		fmt.Println((*bookmark)[0].UserID)
+		return db.Model(out).Debug().Find(out, "user_id = ?", (*bookmark)[0].UserID).Error
+	case *[]models.Category:
+		category := out.(*[]models.Category)
+		return db.Model(out).Debug().Find(out, "user_id = ?", (*category)[0].UserID).Error
+	}
+	return errors.New("Unknown Error Occur")
 }
 
 // Update Entity
@@ -57,21 +78,39 @@ func (repo *Repositorysrv) Update(ufw *UnitOfWork, entity interface{}) error {
 }
 
 // Delete Entity From Database
-func (repo *Repositorysrv) Delete(ufw *UnitOfWork, uid, bid interface{}, out interface{}) error {
-	if bid == "" {
-		return ufw.DB.Model(out).Debug().Delete(out).Error
+func (repo *Repositorysrv) Delete(ufw *UnitOfWork, id uuid.UUID, out interface{}) error {
+	switch out.(type) {
+	case *models.User:
+		return ufw.DB.Debug().Model(out).Delete(out, "id = ?", id).Error
+	case *models.Bookmark:
+		bookmark := out.(*models.Bookmark)
+		return ufw.DB.Debug().Model(out).Delete(out, "id = ? and user_id = ?", id, (*bookmark).UserID).Error
+	case *models.Category:
+		category := out.(*models.Category)
+		return ufw.DB.Debug().Model(out).Delete(out, "id = ? and user_id = ?", id, (*category).UserID).Error
 	}
-	return ufw.DB.Debug().Model(out).Delete(out, "user_id = ? and id = ?", uid, bid).Error
+	return errors.New("Unknown error Occur")
 }
 
 // GetByField Return Result Based on Field.
-func (repo *Repositorysrv) GetByField(ufw *UnitOfWork, value interface{}, fieldname string, uid interface{}, out interface{}, preloadAssociation []string) error {
+func (repo *Repositorysrv) GetByField(ufw *UnitOfWork, value interface{}, fieldname string, out interface{}, preloadAssociation []string) error {
 	db := ufw.DB
 	for _, association := range preloadAssociation {
 		db = db.Preload(association)
 	}
-	if uid == "" {
+	switch out.(type) {
+	case *models.User:
 		return db.Model(out).Debug().First(out, fmt.Sprintf("%s = ?", fieldname), value).Error
+	case *[]models.Bookmark:
+		bookmark := out.(*[]models.Bookmark)
+		return db.Model(out).Debug().Find(out, fmt.Sprintf("%s = ? and user_id = ?", fieldname), value, (*bookmark)[0].UserID).Error
+	case *[]models.Category:
+		category := out.(*[]models.Category)
+		return db.Model(out).Debug().First(out, fmt.Sprintf("%s = ? and user_id = ?", fieldname), value, (*category)[0].UserID).Error
 	}
-	return db.Model(out).First(out, fmt.Sprintf("%s = ? and user_id = ?", fieldname), value, uid).Error
+	return errors.New("Unknown error Occur")
+	// if uid == "" {
+	// 	return db.Model(out).Debug().First(out, fmt.Sprintf("%s = ?", fieldname), value).Error
+	// }
+	// return db.Model(out).First(out, fmt.Sprintf("%s = ? and user_id = ?", fieldname), value, uid).Error
 }
