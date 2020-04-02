@@ -15,12 +15,13 @@ import (
 	"github.com/lin-sel/bookmark-app/controllers"
 	"github.com/lin-sel/bookmark-app/repository"
 	"github.com/lin-sel/bookmark-app/services"
+	"github.com/lin-sel/bookmark-app/web"
 )
 
 func main() {
 	con := conn()
 	muxs := mux.NewRouter()
-	route := muxs.PathPrefix("/api/v1/user").Subrouter()
+	route := muxs.PathPrefix("/api/v1").Subrouter()
 	repo := repository.NewRepository()
 	headers := handlers.AllowedHeaders([]string{"Content-Type", "token"})
 	methods := handlers.AllowedMethods([]string{"POST", "PUT", "GET", "DELETE", "OPTION"})
@@ -94,13 +95,17 @@ func port(key string) string {
 
 func prepareController(con *gorm.DB, route *mux.Router, repo *repository.Repositorysrv) {
 	auth := controllers.NewAuthController([]byte(getSecurityKey()))
-	authservice := services.NewUserService(con, repo)
-	bookmarkcategoryservice := services.NewBookmarkCategoryService(repo, con)
+	userservice := services.NewUserService(con, repo)
+	categoryservice := services.NewBookmarkCategoryService(repo, con)
 	bookmarkservice := services.NewBookmarkService(repo, con)
-	authcontroller := controllers.NewUserController(authservice, auth)
-	bookmarkcontroller := controllers.NewController(bookmarkservice, bookmarkcategoryservice, auth)
-	authcontroller.RouterRgstr(route)
-	bookmarkcontroller.RouterRegstr(route)
+	adminservice := services.NewAdminService(con, repo)
+	usercontroller := controllers.NewUserController(userservice, auth)
+	bookmarkcontroller := controllers.NewController(bookmarkservice, categoryservice, auth)
+	admincontroller := controllers.NewAdminController(bookmarkservice, categoryservice, userservice, adminservice, auth)
+	fmt.Println(web.GetUUID())
+	usercontroller.UserRouteRegister(route)
+	bookmarkcontroller.BookmarkRouteRegister(route)
+	admincontroller.AdminRouteRegister(route)
 }
 
 func getSecurityKey() string {

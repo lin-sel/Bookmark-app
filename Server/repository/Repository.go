@@ -99,7 +99,7 @@ func (repo *Repositorysrv) GetByField(ufw *UnitOfWork, value interface{}, fieldn
 		db = db.Preload(association)
 	}
 	switch out.(type) {
-	case *models.User:
+	case *models.User, *models.Admin:
 		return db.Model(out).Debug().First(out, fmt.Sprintf("%s = ?", fieldname), value).Error
 	case *[]models.Bookmark:
 		bookmark := out.(*[]models.Bookmark)

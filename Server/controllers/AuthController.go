@@ -39,7 +39,7 @@ func (cntrolr *AuthController) AuthUser(h http.Handler) http.Handler {
 		})
 		if err != nil {
 			fmt.Println(err)
-			web.RespondError(&w, web.NewHTTPError("Hello Access Denied.", http.StatusForbidden))
+			web.RespondError(&w, web.NewHTTPError("Access Denied.", http.StatusForbidden))
 			return
 		}
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
@@ -83,12 +83,11 @@ func (cntrolr *AuthController) AuthUser(h http.Handler) http.Handler {
 }
 
 // GetToken Return Token
-func (cntrolr *AuthController) GetToken(user *models.User, w *http.ResponseWriter) (string, error) {
+func (cntrolr *AuthController) GetToken(user models.IUser) (string, error) {
 	// Create a claims map
-	fmt.Println(user.GetuserID())
 	claims := jwt.MapClaims{
 		"username": user.Getusername(),
-		"userID":   user.GetuserID(),
+		"userID":   user.GetID(),
 		"IssuedAt": time.Now().Unix() + session,
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

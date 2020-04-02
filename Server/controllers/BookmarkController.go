@@ -27,11 +27,11 @@ func NewController(bookmarkservice *services.BookmarkService, bookmarkcategoryse
 	}
 }
 
-// RouterRegstr Register All Endpoint of Bookmark to Router
-func (cntrolr *Controller) RouterRegstr(r *mux.Router) {
-	s := r.PathPrefix("/{userid}").Subrouter()
+// BookmarkRouteRegister Register All Endpoint of Bookmark to Router
+func (cntrolr *Controller) BookmarkRouteRegister(r *mux.Router) {
+	s := r.PathPrefix("/user/{userid}").Subrouter()
 	s.Use(cntrolr.auth.AuthUser)
-	cntrolr.CategoryRgstr(s)
+	cntrolr.CategoryRouteRegister(s)
 	s.HandleFunc("/bookmark", cntrolr.GetAllBookmark).Methods("GET")
 	s.HandleFunc("/bookmark/{bookmarkid}", cntrolr.GetBookmarkByID).Methods("GET")
 	s.HandleFunc("/bookmark/category/{categoryid}", cntrolr.GetBookmarkByCategory).Methods("GET")

@@ -28,7 +28,7 @@ func NewUserService(db *gorm.DB, repo *repository.Repositorysrv) *UserService {
 func (auth *UserService) Register(user *models.User) error {
 	uow := repository.NewUnitOfWork(auth.DB, false)
 	authuser := models.User{}
-	err := auth.Repository.GetByField(uow, user.Getusername(), "username", "", &authuser, []string{})
+	err := auth.Repository.GetByField(uow, user.Getusername(), "username", &authuser, []string{})
 	if !authuser.IsEmpty() {
 		return errors.New("user Already present")
 	}
@@ -45,7 +45,7 @@ func (auth *UserService) Register(user *models.User) error {
 func (auth *UserService) Login(user *models.User) error {
 	uow := repository.NewUnitOfWork(auth.DB, true)
 	authuser := models.User{}
-	err := auth.Repository.GetByField(uow, user.Getusername(), "username", "", &authuser, []string{"Category"})
+	err := auth.Repository.GetByField(uow, user.Getusername(), "username", &authuser, []string{"Category"})
 	if authuser.IsEmpty() {
 		return errors.New("Invalid Username")
 	}
@@ -57,10 +57,10 @@ func (auth *UserService) Login(user *models.User) error {
 	if authuser.GetAttemptime() >= 3 {
 		return errors.New("You attemp to login account number of time with wrong password now your account has blocked. contact Admin")
 	}
-	if !checkUserCreadential(user, &authuser) {
+	if authuser.Getpassword() != user.Getpassword() {
 		authuser.Attemptime = authuser.GetAttemptime() + 1
 		auth.Update(&authuser)
-		return errors.New("Invalid Credential to Login")
+		return errors.New("Invalid password")
 	}
 
 	authuser.Attemptime = 0
@@ -71,14 +71,26 @@ func (auth *UserService) Login(user *models.User) error {
 }
 
 // Get Return User.
-func (auth *UserService) Get(uid *uuid.UUID, user *models.User) error {
+func (auth *UserService) Get(uid *uuid.UUID, user *[]models.User) error {
 	uow := repository.NewUnitOfWork(auth.DB, true)
-	err := auth.Repository.Get(uow, user, uid, "", []string{})
+	err := auth.Repository.Get(uow, user, *uid, []string{})
 	if err != nil {
 		uow.Complete()
 		return err
 	}
-	uow.Commit()
+	// uow.Commit()
+	return err
+}
+
+// GetAll Return All User.
+func (auth *UserService) GetAll(uid *uuid.UUID, user *[]models.User) error {
+	uow := repository.NewUnitOfWork(auth.DB, true)
+	err := auth.Repository.GetAll(uow, *uid, user, []string{})
+	if err != nil {
+		uow.Complete()
+		return err
+	}
+	// uow.Commit()
 	return err
 }
 
@@ -97,18 +109,11 @@ func (auth *UserService) Update(user *models.User) error {
 // Delete Return Auth User.
 func (auth *UserService) Delete(uid *uuid.UUID) error {
 	uow := repository.NewUnitOfWork(auth.DB, true)
-	err := auth.Repository.Delete(uow, uid, "", models.User{})
+	err := auth.Repository.Delete(uow, *uid, &models.User{})
 	if err != nil {
 		uow.Complete()
 		return err
 	}
 	uow.Commit()
 	return err
-}
-
-func checkUserCreadential(user *models.User, authuser *models.User) bool {
-	if user.Getpassword() == authuser.Getpassword() {
-		return true
-	}
-	return false
 }

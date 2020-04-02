@@ -51,9 +51,9 @@ func (bm *BookmarkService) UpdateBookmark(bookmark *models.Bookmark) error {
 }
 
 // DeleteBookmark to Database
-func (bm *BookmarkService) DeleteBookmark(uid, bid uuid.UUID) error {
+func (bm *BookmarkService) DeleteBookmark(bid uuid.UUID, bookmark *models.Bookmark) error {
 	uow := repository.NewUnitOfWork(bm.DB, false)
-	err := bm.Repository.Delete(uow, uid, bid, models.Bookmark{})
+	err := bm.Repository.Delete(uow, bid, bookmark)
 	if err != nil {
 		uow.Complete()
 		return err
@@ -65,7 +65,8 @@ func (bm *BookmarkService) DeleteBookmark(uid, bid uuid.UUID) error {
 // GetBookmark to Database
 func (bm *BookmarkService) GetBookmark(uid, bid uuid.UUID, bookmark *[]models.Bookmark) error {
 	uow := repository.NewUnitOfWork(bm.DB, true)
-	err := bm.Repository.Get(uow, bookmark, uid, bid, []string{})
+	(*bookmark)[0].UserID = uid
+	err := bm.Repository.Get(uow, bookmark, bid, []string{})
 	if err != nil {
 		uow.Complete()
 		return err
@@ -87,9 +88,9 @@ func (bm *BookmarkService) GetAllBookmark(uid uuid.UUID, bookmark *[]models.Book
 }
 
 // GetBookmarkByCategory From database
-func (bm *BookmarkService) GetBookmarkByCategory(uid, cid uuid.UUID, bookmark *[]models.Bookmark) error {
+func (bm *BookmarkService) GetBookmarkByCategory(cid uuid.UUID, bookmark *[]models.Bookmark) error {
 	uow := repository.NewUnitOfWork(bm.DB, true)
-	err := bm.Repository.GetByField(uow, cid, "category_id", uid, bookmark, []string{})
+	err := bm.Repository.GetByField(uow, cid, "category_id", bookmark, []string{})
 	if err != nil {
 		uow.Complete()
 		return err

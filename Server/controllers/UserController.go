@@ -11,16 +11,16 @@ import (
 
 const session int64 = 3600
 
+// response Return After Successful Login
+type useresponse struct {
+	models.User
+	Token string `json:"token"`
+}
+
 // UserController Structure
 type UserController struct {
 	auth    *AuthController
 	authsrv *services.UserService
-}
-
-// Response Return As Successfull Login Response.
-type Response struct {
-	models.User
-	Token string `json:"token"`
 }
 
 // NewUserController Return UserController Instance
@@ -31,11 +31,11 @@ func NewUserController(srv *services.UserService, auth *AuthController) *UserCon
 	}
 }
 
-// RouterRgstr Register All Endpoint.
-func (authcntrol *UserController) RouterRgstr(r *mux.Router) {
-	r.HandleFunc("/register", authcntrol.registerUser).Methods("POST")
-	r.HandleFunc("/login", authcntrol.login).Methods("POST")
-	s := r.PathPrefix("/{userid}/user").Subrouter()
+// UserRouteRegister Register All Endpoint.
+func (authcntrol *UserController) UserRouteRegister(r *mux.Router) {
+	r.HandleFunc("/user/register", authcntrol.registerUser).Methods("POST")
+	r.HandleFunc("/user/login", authcntrol.login).Methods("POST")
+	s := r.PathPrefix("/user/{userid}/user").Subrouter()
 	s.Use(authcntrol.auth.AuthUser)
 	s.HandleFunc("", authcntrol.get).Methods("GET")
 	s.HandleFunc("", authcntrol.delete).Methods("DELETE")
@@ -102,13 +102,13 @@ func (authcntrol *UserController) login(w http.ResponseWriter, r *http.Request) 
 		web.RespondError(&w, web.NewValidationError("error", map[string]string{"error": err.Error()}))
 		return
 	}
-	token, err := authcntrol.auth.GetToken(&user, &w)
+	token, err := authcntrol.auth.GetToken(&user)
 	if err != nil {
 		web.RespondError(&w, web.NewValidationError("error", map[string]string{"error": err.Error()}))
 		return
 	}
 
-	web.RespondJSON(&w, http.StatusOK, Response{Token: token, User: user})
+	web.RespondJSON(&w, http.StatusOK, useresponse{Token: token, User: user})
 }
 
 func (authcntrol *UserController) update(w http.ResponseWriter, r *http.Request) {

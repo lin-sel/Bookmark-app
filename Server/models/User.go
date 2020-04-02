@@ -13,7 +13,7 @@ type User struct {
 	Password   string      `gorm:"type:varchar(70)" json:"password"`
 	Email      string      `gorm:"type:varchar(30)" json:"email"`
 	Profile    interface{} `gorm:"type:LONGBLOB" json:"profile"`
-	Attemptime int8        `gorm:"type:int" json:"-"`
+	Attemptime int8        `gorm:"type:int" json:"attempt"`
 	Category   []Category  `json:"categories"`
 }
 
@@ -52,8 +52,8 @@ func (user *User) Getusername() string {
 	return user.Username
 }
 
-// GetuserID return User ID
-func (user *User) GetuserID() uuid.UUID {
+// GetID return User ID
+func (user *User) GetID() uuid.UUID {
 	return user.ID
 }
 
