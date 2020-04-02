@@ -1,6 +1,8 @@
 package models
 
 import (
+	"strings"
+
 	"github.com/lin-sel/bookmark-app/web"
 	uuid "github.com/satori/go.uuid"
 )
@@ -74,8 +76,24 @@ func (user *User) GetAttemptime() int8 {
 
 // IsEmpty Return true/False
 func (user *User) IsEmpty() bool {
-	if user.Getusername() == "" {
+	if len(strings.Trim(user.Getusername(), " ")) == 0 || len(strings.Trim(user.Getpassword(), " ")) == 0 || len(strings.Trim(user.Getname(), " ")) == 0 {
 		return true
 	}
 	return false
+}
+
+// IsUserValid check all nessessory paramater empty ? and return error
+func (user *User) IsUserValid() error {
+	if len(strings.Trim(user.Getusername(), " ")) == 0 {
+		return web.NewValidationError("Require", map[string]string{"error": "username required"})
+	}
+
+	if len(strings.Trim(user.Getpassword(), " ")) == 0 {
+		return web.NewValidationError("Require", map[string]string{"error": "password required"})
+	}
+
+	// if len(strings.Trim(user.Getname(), " ")) == 0 {
+	// 	return web.NewValidationError("Require", map[string]string{"error": "name required"})
+	// }
+	return nil
 }
