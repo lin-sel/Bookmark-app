@@ -1,13 +1,13 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
 	"github.com/lin-sel/bookmark-app/models"
 	"github.com/lin-sel/bookmark-app/services"
 	"github.com/lin-sel/bookmark-app/web"
+	uuid "github.com/satori/go.uuid"
 )
 
 // response Return After Successful Login
@@ -46,6 +46,8 @@ func (admin *AdminController) AdminRouteRegister(r *mux.Router) {
 	s.HandleFunc("/user", admin.addNewUser).Methods("POST")
 	s.HandleFunc("/user/{id}", admin.updateUser).Methods("PUT")
 	s.HandleFunc("/user/{id}", admin.deleteUser).Methods("DELETE")
+	s.HandleFunc("/user/{id}/bookmark", admin.allBookmark).Methods("GET")
+	s.HandleFunc("/user/{id}/category", admin.allCategory).Methods("GET")
 }
 
 // login Admin Login
@@ -57,15 +59,11 @@ func (admin *AdminController) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if len(user.Getusername()) == 0 {
-		web.RespondError(&w, web.NewValidationError("Require", map[string]string{"error": "username required"}))
+	err = user.IsAdminValid()
+	if err != nil {
+		web.RespondError(&w, err)
 		return
 	}
-	if len(user.Getpassword()) == 0 {
-		web.RespondError(&w, web.NewValidationError("Require", map[string]string{"error": "password required"}))
-		return
-	}
-	fmt.Println(user)
 	err = admin.adminservice.Login(&user)
 	if err != nil {
 		web.RespondError(&w, err)
@@ -82,13 +80,13 @@ func (admin *AdminController) login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (admin *AdminController) getAllUser(w http.ResponseWriter, r *http.Request) {
-	id := mux.Vars(r)["userid"]
-	uid, err := web.ParseID(id)
+	param := mux.Vars(r)
+	uid, err := checkAdminID(param)
 	if err != nil {
-		// web.WriteErrorResponse(&w, web.NewHTTPError(err.Error(), http.StatusBadRequest))
-		web.RespondError(&w, web.NewValidationError("User ID", map[string]string{"error": "Invalid User ID"}))
+		web.RespondError(&w, err)
 		return
 	}
+
 	users := []models.User{}
 	err = admin.userservice.GetAll(uid, &users)
 	if err != nil {
@@ -99,14 +97,14 @@ func (admin *AdminController) getAllUser(w http.ResponseWriter, r *http.Request)
 }
 
 func (admin *AdminController) getUser(w http.ResponseWriter, r *http.Request) {
-	ids := mux.Vars(r)
-	_, err := web.ParseID(ids["userid"])
+	param := mux.Vars(r)
+	_, err := checkAdminID(param)
 	if err != nil {
-		// web.WriteErrorResponse(&w, web.NewHTTPError(err.Error(), http.StatusBadRequest))
-		web.RespondError(&w, web.NewValidationError("User ID", map[string]string{"error": "Invalid Admin ID"}))
+		web.RespondError(&w, err)
 		return
 	}
-	uid, err := web.ParseID(ids["id"])
+
+	uid, err := web.ParseID(param["id"])
 	if err != nil {
 		// web.WriteErrorResponse(&w, web.NewHTTPError(err.Error(), http.StatusBadRequest))
 		web.RespondError(&w, web.NewValidationError("User ID", map[string]string{"error": "Invalid User ID"}))
@@ -122,25 +120,23 @@ func (admin *AdminController) getUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (admin *AdminController) addNewUser(w http.ResponseWriter, r *http.Request) {
+	param := mux.Vars(r)
+	_, err := checkAdminID(param)
+	if err != nil {
+		web.RespondError(&w, err)
+		return
+	}
+
 	user := *models.NewUserWithNewID()
-	err := web.UnmarshalJSON(r, &user)
+	err = web.UnmarshalJSON(r, &user)
 	if err != nil {
 		web.RespondError(&w, web.NewValidationError("Form Parse", map[string]string{"error": "Data can't handler"}))
 		return
 	}
 
-	if len(user.Getname()) <= 0 {
-		web.RespondError(&w, web.NewValidationError("require", map[string]string{"error": "name Required"}))
-		return
-	}
-
-	if len(user.Getusername()) <= 0 {
-		web.RespondError(&w, web.NewValidationError("require", map[string]string{"error": "username Required"}))
-		return
-	}
-
-	if len(user.Getpassword()) <= 0 {
-		web.RespondError(&w, web.NewValidationError("require", map[string]string{"error": "password Required"}))
+	err = user.IsUserValid()
+	if err != nil {
+		web.RespondError(&w, err)
 		return
 	}
 
@@ -156,6 +152,12 @@ func (admin *AdminController) addNewUser(w http.ResponseWriter, r *http.Request)
 
 func (admin *AdminController) updateUser(w http.ResponseWriter, r *http.Request) {
 	param := mux.Vars(r)
+	_, err := checkAdminID(param)
+	if err != nil {
+		web.RespondError(&w, err)
+		return
+	}
+
 	uid, err := web.ParseID(param["id"])
 	if err != nil {
 		// web.WriteErrorResponse(&w, web.NewHTTPError(err.Error(), http.StatusBadRequest))
@@ -169,12 +171,9 @@ func (admin *AdminController) updateUser(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if len(user.Getusername()) == 0 {
-		web.RespondError(&w, web.NewValidationError("Require", map[string]string{"error": "username required"}))
-		return
-	}
-	if len(user.Getpassword()) == 0 {
-		web.RespondError(&w, web.NewValidationError("Require", map[string]string{"error": "password required"}))
+	err = user.IsUserValid()
+	if err != nil {
+		web.RespondError(&w, err)
 		return
 	}
 
@@ -189,6 +188,11 @@ func (admin *AdminController) updateUser(w http.ResponseWriter, r *http.Request)
 
 func (admin *AdminController) deleteUser(w http.ResponseWriter, r *http.Request) {
 	param := mux.Vars(r)
+	_, err := checkAdminID(param)
+	if err != nil {
+		web.RespondError(&w, err)
+		return
+	}
 	uid, err := web.ParseID(param["id"])
 	if err != nil {
 		// web.WriteErrorResponse(&w, web.NewHTTPError(err.Error(), http.StatusBadRequest))
@@ -202,4 +206,59 @@ func (admin *AdminController) deleteUser(w http.ResponseWriter, r *http.Request)
 		web.RespondError(&w, web.NewValidationError("error", map[string]string{"error": err.Error()}))
 		return
 	}
+}
+
+func (admin *AdminController) allBookmark(w http.ResponseWriter, r *http.Request) {
+	param := mux.Vars(r)
+	_, err := checkAdminID(param)
+	if err != nil {
+		web.RespondError(&w, err)
+		return
+	}
+	userid, err := web.ParseID(param["id"])
+	if err != nil {
+		// web.WriteErrorResponse(&w, web.NewHTTPError(err.Error(), http.StatusBadRequest))
+		web.RespondError(&w, web.NewValidationError("User ID", map[string]string{"error": "Invalid User ID"}))
+		return
+	}
+	bookmarks := []models.Bookmark{*models.NewBookmarkWithUserID(*userid)}
+	err = admin.bookmarkservice.GetAllBookmark(*userid, &bookmarks)
+	if err != nil {
+		web.RespondError(&w, err)
+		return
+	}
+
+	web.RespondJSON(&w, http.StatusOK, bookmarks)
+}
+
+func (admin *AdminController) allCategory(w http.ResponseWriter, r *http.Request) {
+
+	param := mux.Vars(r)
+	_, err := checkAdminID(param)
+	if err != nil {
+		web.RespondError(&w, err)
+		return
+	}
+	userid, err := web.ParseID(param["id"])
+	if err != nil {
+		// web.WriteErrorResponse(&w, web.NewHTTPError(err.Error(), http.StatusBadRequest))
+		web.RespondError(&w, web.NewValidationError("User ID", map[string]string{"error": "Invalid User ID"}))
+		return
+	}
+	categorys := []models.Category{*models.NewCategoryWithUserID(*userid)}
+	err = admin.categoryservice.GetAllBookmarkCategory(*userid, &categorys)
+	if err != nil {
+		web.RespondError(&w, err)
+		return
+	}
+
+	web.RespondJSON(&w, http.StatusOK, categorys)
+}
+
+func checkAdminID(param map[string]string) (*uuid.UUID, error) {
+	adminid, err := web.ParseID(param["userid"])
+	if err != nil {
+		return nil, web.NewValidationError("User ID", map[string]string{"error": "Invalid Admin ID"})
+	}
+	return adminid, nil
 }
