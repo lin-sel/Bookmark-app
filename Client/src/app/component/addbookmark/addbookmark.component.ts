@@ -39,7 +39,7 @@ export class AddbookmarkComponent implements OnInit {
       // Form Object Created.
       initForm(categoryid) {
             this.bookmark = this.formbuilder.group({
-                  url: ['', [Validators.required, Validators.pattern(/^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/g)]],
+                  url: ['', [Validators.required, Validators.pattern(/^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$/gm)]],
                   tag: ['', Validators.required],
                   label: ['', Validators.required],
                   categoryid: [categoryid, Validators.required]

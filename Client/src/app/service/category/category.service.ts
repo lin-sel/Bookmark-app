@@ -45,16 +45,20 @@ export class CategoryService {
       update(data, id) {
             return new Promise((resolve, reject) => {
                   const header = new HttpHeaders();
-                  this._http.put(`${this._constant.BASE}/${this._storage.getByID("userid")}/category/${id}`, data
-                        , { headers: this.getToken() }
-                  ).toPromise().then((respond: any) => {
-                        this._logger.info(respond)
-                        this.getAll(false);
-                        resolve(respond)
-                  }).catch(err => {
-                        this._logger.error(err)
-                        reject(err)
-                  });
+                  if (!this.getByName(data.category)) {
+                        this._http.put(`${this._constant.BASE}/${this._storage.getByID("userid")}/category/${id}`, data
+                              , { headers: this.getToken() }
+                        ).toPromise().then((respond: any) => {
+                              this._logger.info(respond)
+                              this.getAll(false);
+                              resolve(respond)
+                        }).catch(err => {
+                              this._logger.error(err)
+                              reject(err)
+                        });
+                        return;
+                  }
+                  reject({ error: "Category Name Already Present." })
             })
       }
 
@@ -68,19 +72,33 @@ export class CategoryService {
             return undefined;
       }
 
+      getByName(category: string) {
+            console.log(this.categories.length)
+            for (let index = 0; index < this.categories.length; index++) {
+                  if (this.categories[index].category.toLowerCase() == category.toLowerCase()) {
+                        return true
+                  }
+            }
+            return false;
+      }
+
       addCategory(data) {
             return new Promise((resolve, reject) => {
                   const header = new HttpHeaders();
-                  this._http.post(`${this._constant.BASE}/${this._storage.getByID("userid")}/category`, data
-                        , { headers: this.getToken() }
-                  ).toPromise().then((respond: any) => {
-                        this._logger.info(respond)
-                        this.getAll(false);
-                        resolve(respond)
-                  }).catch(err => {
-                        this._logger.error(err)
-                        reject(err)
-                  });
+                  if (!this.getByName(data.category)) {
+                        this._http.post(`${this._constant.BASE}/${this._storage.getByID("userid")}/category`, data
+                              , { headers: this.getToken() }
+                        ).toPromise().then((respond: any) => {
+                              this._logger.info(respond)
+                              this.getAll(false);
+                              resolve(respond)
+                        }).catch(err => {
+                              this._logger.error(err)
+                              reject(err)
+                        });
+                        return;
+                  }
+                  reject({ error: "Category Name Already Present." })
             });
       }
 

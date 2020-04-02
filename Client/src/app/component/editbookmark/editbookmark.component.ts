@@ -13,7 +13,7 @@ import { UtilService } from 'src/app/service/utils/util.service';
 })
 export class EditbookmarkComponent implements OnInit {
 
-      private url: string = "^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/gm"
+      private url: string = "^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$/gm"
       public bookmark: FormGroup;
       public loader: string = "loader"
       public body: string = "hide";
@@ -53,7 +53,7 @@ export class EditbookmarkComponent implements OnInit {
       // Create Form Object.
       initForm() {
             this.bookmark = this.formbuilder.group({
-                  url: ['', [Validators.required, Validators.pattern(/^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/g)]],
+                  url: ['', [Validators.required, Validators.pattern(/^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$/gm)]],
                   tag: ['', Validators.required],
                   label: ['', Validators.required],
                   id: ['', Validators.required],

@@ -109,9 +109,9 @@ export class ProfileComponent implements OnInit {
       // Update User Data.
       getUser() {
             this.mainservice.getUser().then((respond: any) => {
-                  this.patchValue(respond)
-                  this.userdata = respond
-                  console.log(respond)
+                  this.patchValue(respond[0])
+                  this.userdata = respond[0]
+                  console.log(respond[0])
             }).catch(err => {
                   let error = this.errorParser(err);
                   alert(error);
