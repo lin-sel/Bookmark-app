@@ -1,6 +1,8 @@
 package models
 
 import (
+	"strings"
+
 	"github.com/lin-sel/bookmark-app/web"
 	uuid "github.com/satori/go.uuid"
 )
@@ -56,4 +58,20 @@ func (admin *Admin) GetEmail() string {
 // GetID Return Admin ID
 func (admin *Admin) GetID() uuid.UUID {
 	return admin.ID
+}
+
+// IsAdminValid check all nessessory paramater empty ? and return error
+func (admin *Admin) IsAdminValid() error {
+	if len(strings.Trim(admin.Getusername(), " ")) == 0 {
+		return web.NewValidationError("Require", map[string]string{"error": "username required"})
+	}
+
+	if len(strings.Trim(admin.Getpassword(), " ")) == 0 {
+		return web.NewValidationError("Require", map[string]string{"error": "password required"})
+	}
+
+	// if len(strings.Trim(user.Getname(), " ")) == 0 {
+	// 	return web.NewValidationError("Require", map[string]string{"error": "name required"})
+	// }
+	return nil
 }
