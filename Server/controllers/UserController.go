@@ -11,6 +11,8 @@ import (
 
 const session int64 = 3600
 
+const userRole = "user"
+
 // response Return After Successful Login
 type useresponse struct {
 	models.User
@@ -50,18 +52,9 @@ func (authcntrol *UserController) registerUser(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	if len(user.Getname()) <= 0 {
-		web.RespondError(&w, web.NewValidationError("require", map[string]string{"error": "name Required"}))
-		return
-	}
-
-	if len(user.Getusername()) <= 0 {
-		web.RespondError(&w, web.NewValidationError("require", map[string]string{"error": "username Required"}))
-		return
-	}
-
-	if len(user.Getpassword()) <= 0 {
-		web.RespondError(&w, web.NewValidationError("require", map[string]string{"error": "password Required"}))
+	err = user.IsUserValid()
+	if err != nil {
+		web.RespondError(&w, err)
 		return
 	}
 
@@ -87,12 +80,18 @@ func (authcntrol *UserController) login(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if len(user.Getusername()) == 0 {
-		web.RespondError(&w, web.NewValidationError("Require", map[string]string{"error": "username required"}))
-		return
-	}
-	if len(user.Getpassword()) == 0 {
-		web.RespondError(&w, web.NewValidationError("Require", map[string]string{"error": "password required"}))
+	// if len(user.Getusername()) == 0 {
+	// 	web.RespondError(&w, web.NewValidationError("Require", map[string]string{"error": "username required"}))
+	// 	return
+	// }
+	// if len(user.Getpassword()) == 0 {
+	// 	web.RespondError(&w, web.NewValidationError("Require", map[string]string{"error": "password required"}))
+	// 	return
+	// }
+
+	err = user.IsUserValid()
+	if err != nil {
+		web.RespondError(&w, err)
 		return
 	}
 
@@ -102,36 +101,37 @@ func (authcntrol *UserController) login(w http.ResponseWriter, r *http.Request) 
 		web.RespondError(&w, web.NewValidationError("error", map[string]string{"error": err.Error()}))
 		return
 	}
+	if !user.IsEqualRole(userRole) {
+		web.RespondError(&w, web.NewValidationError("error", map[string]string{"error": "Invalid User for Role"}))
+		return
+	}
 	token, err := authcntrol.auth.GetToken(&user)
 	if err != nil {
 		web.RespondError(&w, web.NewValidationError("error", map[string]string{"error": err.Error()}))
 		return
 	}
 
-	web.RespondJSON(&w, http.StatusOK, useresponse{Token: token, User: user})
+	web.RespondJSON(&w, http.StatusOK, models.TokenResponse{Token: token, User: user})
 }
 
 func (authcntrol *UserController) update(w http.ResponseWriter, r *http.Request) {
 	param := mux.Vars(r)
-	uid, err := web.ParseID(param["userid"])
+	uid, err := authcntrol.authsrv.CheckUser(param, userRole)
 	if err != nil {
-		// web.WriteErrorResponse(&w, web.NewHTTPError(err.Error(), http.StatusBadRequest))
-		web.RespondError(&w, web.NewValidationError("User ID", map[string]string{"error": "Invalid User ID"}))
+		web.RespondError(&w, err)
 		return
 	}
-	user := models.User{}
+
+	user := models.User{Role: "user"}
 	err = web.UnmarshalJSON(r, &user)
 	if err != nil {
 		web.RespondError(&w, web.NewValidationError("Form Parse", map[string]string{"error": "Data can't Handle"}))
 		return
 	}
 
-	if len(user.Getusername()) == 0 {
-		web.RespondError(&w, web.NewValidationError("Require", map[string]string{"error": "username required"}))
-		return
-	}
-	if len(user.Getpassword()) == 0 {
-		web.RespondError(&w, web.NewValidationError("Require", map[string]string{"error": "password required"}))
+	err = user.IsUserValid()
+	if err != nil {
+		web.RespondError(&w, err)
 		return
 	}
 
@@ -146,10 +146,9 @@ func (authcntrol *UserController) update(w http.ResponseWriter, r *http.Request)
 
 func (authcntrol *UserController) delete(w http.ResponseWriter, r *http.Request) {
 	param := mux.Vars(r)
-	uid, err := web.ParseID(param["userid"])
+	uid, err := authcntrol.authsrv.CheckUser(param, userRole)
 	if err != nil {
-		// web.WriteErrorResponse(&w, web.NewHTTPError(err.Error(), http.StatusBadRequest))
-		web.RespondError(&w, web.NewValidationError("User ID", map[string]string{"error": "Invalid User ID"}))
+		web.RespondError(&w, err)
 		return
 	}
 
@@ -163,10 +162,9 @@ func (authcntrol *UserController) delete(w http.ResponseWriter, r *http.Request)
 
 func (authcntrol *UserController) get(w http.ResponseWriter, r *http.Request) {
 	param := mux.Vars(r)
-	uid, err := web.ParseID(param["userid"])
+	uid, err := authcntrol.authsrv.CheckUser(param, userRole)
 	if err != nil {
-		// web.WriteErrorResponse(&w, web.NewHTTPError(err.Error(), http.StatusBadRequest))
-		web.RespondError(&w, web.NewValidationError("User ID", map[string]string{"error": "Invalid User ID"}))
+		web.RespondError(&w, err)
 		return
 	}
 
