@@ -83,7 +83,7 @@ func (cntrolr *AuthController) AuthUser(h http.Handler) http.Handler {
 }
 
 // GetToken Return Token
-func (cntrolr *AuthController) GetToken(user models.IUser) (string, error) {
+func (cntrolr *AuthController) GetToken(user *models.User) (string, error) {
 	// Create a claims map
 	claims := jwt.MapClaims{
 		"username": user.Getusername(),
