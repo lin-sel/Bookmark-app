@@ -74,9 +74,21 @@ func (bm *BookmarkCategoryService) GetBookmarkCategory(uid, cid uuid.UUID, categ
 }
 
 // GetAllBookmarkCategory From database
-func (bm *BookmarkCategoryService) GetAllBookmarkCategory(uid uuid.UUID, categories *[]models.Category) error {
+func (bm *BookmarkCategoryService) GetAllBookmarkCategory(uid uuid.UUID, categories *models.CategoryResponse) error {
 	uow := repository.NewUnitOfWork(bm.DB, true)
 	err := bm.Repository.GetAll(uow, uid, categories, []string{"Bookmark"})
+	if err != nil {
+		uow.Complete()
+		return err
+	}
+	// uow.Commit()
+	return err
+}
+
+// GetTotalCount Return Total Data set count.
+func (bm *BookmarkCategoryService) GetTotalCount(bookmark *models.Category, count *int64) error {
+	uow := repository.NewUnitOfWork(bm.DB, true)
+	err := bm.Repository.GetTotalCount(uow, bookmark.GetUserID(), bookmark, count, "", "")
 	if err != nil {
 		uow.Complete()
 		return err
