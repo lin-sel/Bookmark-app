@@ -2,6 +2,7 @@ package web
 
 import (
 	"errors"
+	"strconv"
 
 	uuid "github.com/satori/go.uuid"
 )
@@ -25,4 +26,14 @@ func ParseID(id string) (*uuid.UUID, error) {
 func ParseOrNil(id string) *uuid.UUID {
 	uid := uuid.FromStringOrNil(id)
 	return &uid
+}
+
+// ParseInt64 Parse string to integer64
+func ParseInt64(s string) *int64 {
+	v, err := strconv.ParseInt(s, 8, 64)
+	if err != nil {
+		v = 0
+		return &v
+	}
+	return &v
 }
