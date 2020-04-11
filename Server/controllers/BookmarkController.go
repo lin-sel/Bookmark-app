@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"errors"
+	"math"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -32,9 +33,9 @@ func (cntrolr *Controller) BookmarkRouteRegister(r *mux.Router) {
 	s := r.PathPrefix("/user/{userid}").Subrouter()
 	s.Use(cntrolr.auth.AuthUser)
 	cntrolr.CategoryRouteRegister(s)
-	s.HandleFunc("/bookmark", cntrolr.GetAllBookmark).Methods("GET")
+	s.HandleFunc("/bookmark/{pagesize}/{pagenumber}", cntrolr.GetAllBookmark).Methods("GET")
 	s.HandleFunc("/bookmark/{bookmarkid}", cntrolr.GetBookmarkByID).Methods("GET")
-	s.HandleFunc("/bookmark/category/{categoryid}", cntrolr.GetBookmarkByCategory).Methods("GET")
+	s.HandleFunc("/bookmark/category/{categoryid}/{pagesize}/{pagenumber}", cntrolr.GetBookmarkByCategory).Methods("GET")
 	s.HandleFunc("/bookmark", cntrolr.AddBookmark).Methods("POST")
 	s.HandleFunc("/bookmark/{bookmarkid}", cntrolr.UpdateBookmark).Methods("PUT")
 	s.HandleFunc("/bookmark/{bookmarkid}", cntrolr.DeleteBookmark).Methods("DELETE")
@@ -42,20 +43,39 @@ func (cntrolr *Controller) BookmarkRouteRegister(r *mux.Router) {
 
 // GetAllBookmark Return All Bookmark By UserID
 func (cntrolr *Controller) GetAllBookmark(w http.ResponseWriter, r *http.Request) {
-	id := mux.Vars(r)["userid"]
-	uid, err := web.ParseID(id)
+	param := mux.Vars(r)
+	uid, err := web.ParseID(param["userid"])
 	if err != nil {
 		// web.WriteErrorResponse(&w, web.NewHTTPError(err.Error(), http.StatusBadRequest))
 		web.RespondError(&w, web.NewValidationError("User ID", map[string]string{"error": "Invalid User ID"}))
 		return
 	}
-	bookmarks := []models.Bookmark{*models.NewBookmarkWithUserID(*uid)}
-	err = cntrolr.bmsrv.GetAllBookmark(*uid, &bookmarks)
+	pagesize := web.ParseInt64(param["pagesize"])
+	if *pagesize == int64(0) {
+		*pagesize = 100
+	}
+	pagenumber := web.ParseInt64(param["pagenumber"])
+	if *pagesize == int64(0) {
+		*pagesize = 1
+	}
+	response := models.NewResponseBookmark(&[]models.Bookmark{*models.NewBookmarkWithUserID(*uid)}, *pagenumber, *pagesize)
+	err = cntrolr.bmsrv.GetAllBookmark(*uid, response)
 	if err != nil {
 		web.RespondError(&w, err)
 		return
 	}
-	web.RespondJSON(&w, http.StatusOK, bookmarks)
+	var count int64
+	err = cntrolr.bmsrv.GetTotalCount(models.NewBookmarkWithUserID(*uid), &count, "user_id", *uid)
+	if err != nil {
+		web.RespondError(&w, err)
+		return
+	}
+	response.TotalPage = int64(math.Ceil((float64(count) / float64(*pagesize))))
+	response.TotalCount = count
+	if response.TotalPage == 0 && count > 0 {
+		response.TotalPage = 1
+	}
+	web.RespondJSON(&w, http.StatusOK, response)
 }
 
 // GetBookmarkByID Return Bookmark of Given ID
@@ -96,13 +116,32 @@ func (cntrolr *Controller) GetBookmarkByCategory(w http.ResponseWriter, r *http.
 		web.RespondError(&w, web.NewValidationError("error", map[string]string{"msg": "Invalid Category ID"}))
 		return
 	}
-	bookmarks := []models.Bookmark{*models.NewBookmarkWithUserID(*uid)}
-	err = cntrolr.bmsrv.GetBookmarkByCategory(*cid, &bookmarks)
+	pagesize := web.ParseInt64(param["pagesize"])
+	if *pagesize == int64(0) {
+		*pagesize = 100
+	}
+	pagenumber := web.ParseInt64(param["pagenumber"])
+	if *pagesize == int64(0) {
+		*pagesize = 1
+	}
+	response := models.NewResponseBookmark(&[]models.Bookmark{*models.NewBookmarkWithUserID(*uid)}, *pagenumber, *pagesize)
+	err = cntrolr.bmsrv.GetBookmarkByCategory(*cid, response)
 	if err != nil {
 		web.RespondError(&w, err)
 		return
 	}
-	web.RespondJSON(&w, http.StatusOK, bookmarks)
+	var count int64
+	err = cntrolr.bmsrv.GetTotalCount(models.NewBookmarkWithUserID(*uid), &count, "category_id", *cid)
+	if err != nil {
+		web.RespondError(&w, err)
+		return
+	}
+	response.TotalPage = int64(math.Ceil((float64(count) / float64(*pagesize))))
+	response.TotalCount = count
+	if response.TotalPage == 0 && count > 0 {
+		response.TotalPage = 1
+	}
+	web.RespondJSON(&w, http.StatusOK, response)
 }
 
 // UpdateBookmark Update Bookmark

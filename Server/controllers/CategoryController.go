@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"math"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -12,7 +13,7 @@ import (
 
 // CategoryRouteRegister Register All Endpoint to Router
 func (cntrlr *Controller) CategoryRouteRegister(s *mux.Router) {
-	s.HandleFunc("/category", cntrlr.GetAllCategory).Methods("GET")
+	s.HandleFunc("/category/{pagesize}/{pagenumber}", cntrlr.GetAllCategory).Methods("GET")
 	s.HandleFunc("/category/{categoryid}", cntrlr.GetCategoryByID).Methods("GET")
 	s.HandleFunc("/category", cntrlr.AddCategory).Methods("POST")
 	s.HandleFunc("/category/{categoryid}", cntrlr.UpdateCategory).Methods("PUT")
@@ -21,19 +22,38 @@ func (cntrlr *Controller) CategoryRouteRegister(s *mux.Router) {
 
 // GetAllCategory return All Category Of User
 func (cntrlr *Controller) GetAllCategory(w http.ResponseWriter, r *http.Request) {
-	id := mux.Vars(r)["userid"]
-	uid, err := web.ParseID(id)
+	param := mux.Vars(r)
+	uid, err := web.ParseID(param["userid"])
 	if err != nil {
 		web.RespondError(&w, web.NewValidationError("Invalid User ID", map[string]string{"error": "Invalid User ID"}))
 		return
 	}
-	categories := []models.Category{*models.NewCategoryWithUserID(*uid)}
-	err = cntrlr.bmcsrv.GetAllBookmarkCategory(*uid, &categories)
+	pagesize := web.ParseInt64(param["pagesize"])
+	if *pagesize == int64(0) {
+		*pagesize = 100
+	}
+	pagenumber := web.ParseInt64(param["pagenumber"])
+	if *pagesize == int64(0) {
+		*pagesize = 1
+	}
+	response := models.NewResponseCategory(&[]models.Category{*models.NewCategoryWithUserID(*uid)}, *pagenumber, *pagesize)
+	err = cntrlr.bmcsrv.GetAllBookmarkCategory(*uid, response)
 	if err != nil {
 		web.RespondError(&w, err)
 		return
 	}
-	web.RespondJSON(&w, http.StatusOK, categories)
+	var count int64
+	err = cntrlr.bmcsrv.GetTotalCount(models.NewCategoryWithUserID(*uid), &count)
+	if err != nil {
+		web.RespondError(&w, err)
+		return
+	}
+	response.TotalPage = int64(math.Ceil((float64(count) / float64(*pagesize))))
+	response.TotalCount = count
+	if response.TotalPage == 0 && count > 0 {
+		response.TotalPage = 1
+	}
+	web.RespondJSON(&w, http.StatusOK, response)
 }
 
 // GetCategoryByID return All Category Of User
