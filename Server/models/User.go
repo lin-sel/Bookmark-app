@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/lin-sel/bookmark-app/web"
@@ -11,12 +12,13 @@ import (
 type User struct {
 	Basemodel
 	Name       string      `gorm:"type:varchar(30);" json:"name"`
-	Username   string      `gorm:"type:varchar(25);unique_index" json:"username"`
+	Username   string      `gorm:"type:varchar(25);unique_index;" json:"username"`
 	Password   string      `gorm:"type:varchar(70)" json:"password"`
 	Email      string      `gorm:"type:varchar(30)" json:"email"`
 	Profile    interface{} `gorm:"type:LONGBLOB" json:"profile"`
 	Attemptime int8        `gorm:"type:int" json:"attempt"`
-	Category   []Category  `json:"categories"`
+	Role       string      `gorm:"type:varchar(30)" sql:"DEFAULT:'user'" json:"-"`
+	Category   []Category  `json:"-"`
 }
 
 // NewUserWithNewID Return user instance with ID
@@ -69,6 +71,11 @@ func (user *User) Getname() string {
 	return user.Name
 }
 
+// Getrole return Role
+func (user *User) Getrole() string {
+	return user.Role
+}
+
 // GetAttemptime Return number of time attemp.
 func (user *User) GetAttemptime() int8 {
 	return user.Attemptime
@@ -77,6 +84,16 @@ func (user *User) GetAttemptime() int8 {
 // IsEmpty Return true/False
 func (user *User) IsEmpty() bool {
 	if len(strings.Trim(user.Getusername(), " ")) == 0 || len(strings.Trim(user.Getpassword(), " ")) == 0 || len(strings.Trim(user.Getname(), " ")) == 0 {
+		return true
+	}
+	return false
+}
+
+// IsEqualRole compare user role with parameter
+func (user *User) IsEqualRole(role string) bool {
+	fmt.Println(role, user.Getrole())
+	if user.Getrole() == role {
+		fmt.Println(user.Getrole())
 		return true
 	}
 	return false
