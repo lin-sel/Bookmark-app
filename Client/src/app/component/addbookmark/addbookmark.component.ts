@@ -14,16 +14,17 @@ export class AddbookmarkComponent implements OnInit {
       public loader: string = "loader"
       public bookmark: FormGroup;
       public body: string = "hide";
+      private role: string = "user";
       constructor(
             private activeroute: ActivatedRoute,
             private formbuilder: FormBuilder,
             private mainservice: MainService,
-            private util: UtilService
+            public util: UtilService
       ) { }
 
       ngOnInit() {
-            if (!this.mainservice.authUser()) {
-                  alert("PLease Login First.");
+            if (!this.mainservice.authUser(this.role)) {
+                  alert("Please Login First.");
                   this.util.navigate("login");
                   return;
             }

@@ -20,7 +20,7 @@ export class ProfileComponent implements OnInit {
       constructor(
             private mainservice: MainService,
             private formbuilder: FormBuilder,
-            private util: UtilService,
+            public util: UtilService,
             private sanitize: DomSanitizer
       ) {
             this.loader = {
@@ -40,7 +40,7 @@ export class ProfileComponent implements OnInit {
                   profile: [''],
                   username: ['', Validators.required],
                   password: ['', Validators.required],
-                  email: ["", Validators.required]
+                  email: ["", [Validators.required, Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$")]]
             });
       }
 
@@ -71,9 +71,7 @@ export class ProfileComponent implements OnInit {
 
       // Update User Data.
       update() {
-            // this.setImageProfile()
             this.configLoader();
-            console.log(this.user.value);
             this.mainservice.updateUser(this.user.value).then((respond: any) => {
                   alert("Data Updated.");
                   document.location.reload();

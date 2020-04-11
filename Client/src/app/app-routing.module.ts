@@ -8,6 +8,7 @@ import { CategoryComponent } from './component/category/category.component';
 import { EditbookmarkComponent } from './component/editbookmark/editbookmark.component';
 import { AddbookmarkComponent } from './component/addbookmark/addbookmark.component';
 import { ProfileComponent } from './component/profile/profile.component';
+import { AdmindashboardComponent } from './component/admindashboard/admindashboard.component';
 
 
 
@@ -21,6 +22,7 @@ const appRoutes: Routes = [
             pathMatch: 'full'
       },
       { path: "profile", component: ProfileComponent },
+      { path: "admindashboard", component: AdmindashboardComponent },
       { path: 'addbookmark/:id', component: AddbookmarkComponent },
       { path: 'editbookmark/:id', component: EditbookmarkComponent },
       { path: 'category', component: CategoryComponent },

@@ -11,6 +11,7 @@ import { Constant } from '../constant';
 export class LoginService {
 
       private user: any;
+      private admin: any;
       constructor(
             private _http: HttpClient,
             private _constant: Constant,
@@ -19,16 +20,45 @@ export class LoginService {
             private _storage: StorageService
       ) { }
 
-      login(data) {
+      userLogin(data) {
             return new Promise((resolve, reject) => {
                   if (this.user == undefined) {
-                        this._http.post(`${this._constant.BASE}/login`, data,
+                        this._http.post(`${this._constant.BASE}/user/login`, data,
                               { headers: this.getToken() }
                         ).toPromise().then((respond: any) => {
                               this.user = respond;
-                              this._logger.log(respond)
-                              this._storage.setByID("token", respond.token)
-                              this._storage.setByID("userid", respond.id)
+                              // this._logger.log(respond)
+                              // this._storage.setByID("token", respond.token)
+                              // this._storage.setByID("userid", respond.id)
+                              // this._storage.setByID(this._constant.ROLE, "user")
+                              this.setSession(respond, "user")
+                              resolve()
+                        }).catch(err => {
+                              reject(err)
+                        })
+                  }
+            })
+      }
+
+      setSession(respond, role) {
+            this._logger.log(respond);
+            this._storage.setByID("token", respond.token)
+            this._storage.setByID("userid", respond.id)
+            this._storage.setByID(this._constant.ROLE, role)
+      }
+
+      adminLogin(data) {
+            return new Promise((resolve, reject) => {
+                  if (this.admin == undefined) {
+                        this._http.post(`${this._constant.BASE}/admin/login`, data,
+                              { headers: this.getToken() }
+                        ).toPromise().then((respond: any) => {
+                              this.user = respond;
+                              // this._logger.log(respond)
+                              // this._storage.setByID("token", respond.token)
+                              // this._storage.setByID("userid", respond.id)
+                              // this._storage.setByID(this._constant.ROLE, "admin")
+                              this.setSession(respond, "admin")
                               resolve()
                         }).catch(err => {
                               reject(err)

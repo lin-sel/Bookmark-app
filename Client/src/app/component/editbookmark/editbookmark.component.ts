@@ -13,22 +13,27 @@ import { UtilService } from 'src/app/service/utils/util.service';
 })
 export class EditbookmarkComponent implements OnInit {
 
-      private url: string = "^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$/gm"
       public bookmark: FormGroup;
-      public loader: string = "loader"
+      public loader: any;
       public body: string = "hide";
+      private role: string = "user";
       constructor(
             private activeroute: ActivatedRoute,
             private formbuilder: FormBuilder,
             private json: JsonService,
             private mainservice: MainService,
             private router: Router,
-            private util: UtilService
-      ) { }
+            public util: UtilService
+      ) {
+            this.loader = {
+                  loader: "loader",
+                  body: "hide"
+            }
+      }
 
       ngOnInit() {
             this.initForm();
-            if (!this.mainservice.authUser()) {
+            if (!this.mainservice.authUser(this.role)) {
                   alert("PLease Login First.");
                   this.router.navigate(["login"]);
                   return;
@@ -39,14 +44,14 @@ export class EditbookmarkComponent implements OnInit {
 
       // Get Parameter From URL and Get Bookmark By ID.
       getParam() {
-            let id = this.activeroute.snapshot.paramMap.get('id');
-            let bookmk = this.mainservice.getBookmarkByID(id);
-            if (bookmk == undefined) {
-                  alert("Not Found");
-                  this.navigate("bookmark");
-                  return
-            }
-            this.patchValue(bookmk)
+            // let id = this.activeroute.snapshot.paramMap.get('id');
+            // // let bookmk = this.mainservice.getBookmarkByID(id);
+            // if (bookmk == undefined) {
+            //       alert("Not Found");
+            //       this.navigate("bookmark");
+            //       return
+            // }
+            // this.patchValue(bookmk)
       }
 
 
@@ -78,7 +83,6 @@ export class EditbookmarkComponent implements OnInit {
             this.mainservice.updateBookmark(this.bookmark.value).then(data => {
                   console.log("Updated");
                   alert("Update Done");
-                  this.mainservice.getAllBookmark(false);
                   this.navigate("bookmark");
             }).catch(err => {
                   let error = this.errorParser(err);
@@ -120,12 +124,6 @@ export class EditbookmarkComponent implements OnInit {
       }
 
       configLoader() {
-            let obj = {
-                  loader: this.loader,
-                  body: this.body
-            }
-            this.util.configLoader(obj)
-            this.loader = obj.loader
-            this.body = obj.body
+            this.util.configLoader(this.loader)
       }
 }

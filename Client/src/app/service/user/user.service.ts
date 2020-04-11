@@ -24,7 +24,7 @@ export class UserService {
       get(check: boolean) {
             return new Promise((resolve, reject) => {
                   if (!this.user) {
-                        this._http.get(`${this._constant.BASE}/${this._storage.getByID("userid")}/user`,
+                        this._http.get(`${this._constant.BASE}/user/${this._storage.getByID("userid")}/user`,
                               { headers: this.getToken() },
                         ).toPromise().then((respond: any) => {
                               this._logger.info(respond)
@@ -44,7 +44,7 @@ export class UserService {
 
       update(data) {
             return new Promise((resolve, reject) => {
-                  this._http.put(`${this._constant.BASE}/${this._storage.getByID("userid")}/user`, data,
+                  this._http.put(`${this._constant.BASE}/user/${this._storage.getByID("userid")}/user`, data,
                         { headers: this.getToken() },
                   ).toPromise().then((respond: any) => {
                         this._logger.info(respond)
@@ -61,7 +61,7 @@ export class UserService {
       delete(bookmarkid) {
             return new Promise((resolve, reject) => {
                   const headers = new HttpHeaders();
-                  this._http.delete(`${this._constant.BASE}/${this._storage.getByID("userid")}/user`
+                  this._http.delete(`${this._constant.BASE}/user/${this._storage.getByID("userid")}/user`
                         , { headers: this.getToken() },
                   ).toPromise().then((respond: any) => {
                         this._logger.info(respond)

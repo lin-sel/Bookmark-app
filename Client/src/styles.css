@@ -43,3 +43,8 @@ body{
 .visible{
       display: block;
 }
+
+.location{
+      float: right;
+      margin-right: 2%;
+}

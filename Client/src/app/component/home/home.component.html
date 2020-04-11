@@ -3,55 +3,77 @@
 </div>
 <div [class]="loader.body">
       <app-navbar></app-navbar>
+      <div class="location">{{util.getLocation()}}</div>
       <div class="root-div" style="padding:5%">
             <div class="row mx-auto">
-                  <div class="col-md-4 col-sm-6 padding-bottom-5-percent" *ngFor="let category of categories">
+                  <div class="col-md-4 col-sm-6 padding-bottom-5-percent">
                         <ul class="list-group shadow">
-                              <li class="list-group-item active text-center ">{{categories && category.category}}
+                              <li class="list-group-item active text-center ">
+                                    Categorys
+                              </li>
+                              <li class="list-group-item text-center " *ngFor="let category of data">
+                                    <div (click)="setCurrentCategory(category)">
+                                          {{data && category.category.category}}</div>
+                              </li>
+                              <li class="list-group-item text-center cursor-style">+
+                                    New
+                                    category</li>
+                        </ul>
+                  </div>
+                  <div class="col-md-8 col-sm-6 padding-bottom-5-percent">
+                        <ul class="list-group shadow">
+                              <li class="list-group-item active text-center ">
+                                    Bookmarks
                               </li>
                               <li class="list-group-item d-flex justify-content-between align-items-center"
-                                    *ngFor="let bookmark of category.bookmarks;let ind = index;">
-                                    {{categories && bookmark.url}}
+                                    *ngFor="let bookmark of getBookmarkList();let ind = index;">
+                                    {{data && bookmark.url}}
                                     <button type="button" class="btn btn-light" (click)="viewDetail(bookmark)"
                                           data-toggle="modal" data-target="#viewmodel">view</button>
 
                               </li>
-                              <li (click)="addBookmark(category.id)" class="list-group-item text-center cursor-style">+
+                              <li class="list-group-item text-center " *ngIf="getNextLabel">
+                                    Next
+                              </li>
+                              <li (click)="addBookmark(currentcategory.id)"
+                                    class="list-group-item text-center cursor-style">+
                                     New
                                     Bookmark</li>
                         </ul>
                   </div>
             </div>
-      </div>
-      <div id="viewmodel" class="modal fade">
-            <!-- <div> -->
-            <div class="modal-dialog modal-dialog-centered">
-                  <div class="modal-content">
+            <div id="viewmodel" class="modal fade">
+                  <!-- <div> -->
+                  <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
 
-                        <!-- Modal Header -->
-                        <div class="modal-header">
-                              <h4 class="modal-title">Bookmark</h4>
-                              <button type="button" class="close" data-dismiss="modal">&times;</button>
+                              <!-- Modal Header -->
+                              <div class="modal-header">
+                                    <h4 class="modal-title">Bookmark</h4>
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                              </div>
+
+                              <!-- Modal body -->
+                              <div class="modal-body">
+                                    <app-view [keys]="getKeys()" [content]="content"></app-view>
+                              </div>
+
+                              <!-- Modal footer -->
+                              <div class="modal-footer">
+                                    <button type="button" class="btn btn-info" data-dismiss="modal"
+                                          (click)="navigate('editbookmark',content.id)">Edit</button>
+                                    <button type="button" class="btn btn-danger" data-dismiss="modal"
+                                          (click)="deleteBookmark(content.id)">Delete</button>
+                                    <button type="button" class="btn btn-primary" data-dismiss="modal"
+                                          (click)="goToExternalURL()">Visit</button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                              </div>
+
                         </div>
-
-                        <!-- Modal body -->
-                        <div class="modal-body">
-                              <app-view [keys]="getKeys()" [content]="content"></app-view>
-                        </div>
-
-                        <!-- Modal footer -->
-                        <div class="modal-footer">
-                              <button type="button" class="btn btn-info" data-dismiss="modal"
-                                    (click)="navigate('editbookmark',content.id)">Edit</button>
-                              <button type="button" class="btn btn-danger" data-dismiss="modal"
-                                    (click)="deleteBookmark(content.id)">Delete</button>
-                              <button type="button" class="btn btn-primary" data-dismiss="modal"
-                                    (click)="goToExternalURL()">Visit</button>
-                              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        </div>
-
                   </div>
+                  <!-- </div> -->
             </div>
-            <!-- </div> -->
       </div>
-</div>
+      <div class="row" *ngIf="totalpage >= pagenumber">
+            <div class="col-md-3"><button (click)="getAllBookmark()">Next</button></div>
+      </div>

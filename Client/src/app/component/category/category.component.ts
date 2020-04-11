@@ -18,10 +18,11 @@ export class CategoryComponent implements OnInit {
       public content: any;
       public category: FormGroup;
       public categories: any[];
+      private role: string = "user";
       constructor(
             private formbuilder: FormBuilder,
             private mainservice: MainService,
-            private util: UtilService
+            public util: UtilService
       ) {
             this.loader = {
                   loader: "loader",
@@ -30,7 +31,7 @@ export class CategoryComponent implements OnInit {
       }
 
       ngOnInit() {
-            if (!this.mainservice.authUser()) {
+            if (!this.mainservice.authUser(this.role)) {
                   alert("Please Login First.");
                   this.util.navigate("login")
                   return;

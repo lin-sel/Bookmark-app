@@ -5,6 +5,7 @@ import { StorageService } from './utils/storage.service';
 import { LoginService } from './login/login.service';
 import { RegisterService } from './register/register.service';
 import { UserService } from './user/user.service';
+import { Constant } from './constant';
 
 @Injectable({
       providedIn: 'root'
@@ -17,17 +18,18 @@ export class MainService {
             private storage: StorageService,
             private login: LoginService,
             private register: RegisterService,
-            private user: UserService
+            private user: UserService,
+            private constant: Constant
       ) {
-            this.authUser()
+            // this.authUser()
       }
 
-      getAllBookmark(check: boolean): Promise<any> {
-            return this.bookmark.getAll(check)
+      getAllBookmark(check: boolean, pagesize: number, pagenumber: number): Promise<any> {
+            return this.bookmark.getAll(check, pagesize, pagenumber)
       }
 
-      getBookmarkByID(id: string) {
-            return this.bookmark.getByID(id);
+      getBookmarkByID(id: string, pagesize, pagenumber) {
+            return this.bookmark.getBookmarkByCategoryID(id, pagesize, pagenumber);
       }
 
       deleteBookmark(id: string) {
@@ -42,9 +44,11 @@ export class MainService {
             return this.bookmark.addBookmark(data);
       }
 
-      authUser() {
+      authUser(role: string) {
+            console.log(this.storage.getByID('userid'))
             if (this.storage.getByID('userid') == null || this.storage.getByID('token') == null) {
-                  return false;
+                  if (this.storage.getByID(this.constant.ROLE).toLowerCase().includes(role.toLowerCase()))
+                        return false;
             }
             else {
                   return true;
@@ -77,8 +81,12 @@ export class MainService {
       }
 
 
-      appLogin(data) {
-            return this.login.login(data);
+      userLogin(data) {
+            return this.login.userLogin(data);
+      }
+
+      adminLogin(data) {
+            return this.login.adminLogin(data);
       }
 
       userRegister(data) {

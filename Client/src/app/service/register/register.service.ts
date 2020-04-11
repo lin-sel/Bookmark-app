@@ -18,7 +18,7 @@ export class RegisterService {
 
       register(data) {
             return new Promise((resolve, reject) => {
-                  this._http.post(`${this._constant.BASE}/register`, data,
+                  this._http.post(`${this._constant.BASE}/user/register`, data,
                         {
                               headers: {
                                     'token': ""

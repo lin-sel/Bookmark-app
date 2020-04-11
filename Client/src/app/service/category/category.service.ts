@@ -25,12 +25,12 @@ export class CategoryService {
             return new Promise((resolve, reject) => {
                   if (this.categories.length == 0 || !check) {
                         const header = new HttpHeaders();
-                        this._http.get(`${this._constant.BASE}/${this._storage.getByID("userid")}/category`
+                        this._http.get(`${this._constant.BASE}/user/${this._storage.getByID("userid")}/category/0/0`
                               , { headers: this.getToken() }
                         ).toPromise().then((respond: any) => {
                               this._logger.info(respond)
-                              this.categories = respond;
-                              resolve(respond)
+                              this.categories = respond.listofcategory;
+                              resolve(this.categories)
                         }).catch(err => {
                               this._logger.error(err)
                               reject(err)
@@ -46,7 +46,7 @@ export class CategoryService {
             return new Promise((resolve, reject) => {
                   const header = new HttpHeaders();
                   if (!this.getByName(data.category)) {
-                        this._http.put(`${this._constant.BASE}/${this._storage.getByID("userid")}/category/${id}`, data
+                        this._http.put(`${this._constant.BASE}/user/${this._storage.getByID("userid")}/category/${id}`, data
                               , { headers: this.getToken() }
                         ).toPromise().then((respond: any) => {
                               this._logger.info(respond)
@@ -86,7 +86,7 @@ export class CategoryService {
             return new Promise((resolve, reject) => {
                   const header = new HttpHeaders();
                   if (!this.getByName(data.category)) {
-                        this._http.post(`${this._constant.BASE}/${this._storage.getByID("userid")}/category`, data
+                        this._http.post(`${this._constant.BASE}/user/${this._storage.getByID("userid")}/category`, data
                               , { headers: this.getToken() }
                         ).toPromise().then((respond: any) => {
                               this._logger.info(respond)
@@ -105,7 +105,7 @@ export class CategoryService {
       deleteCategory(categoryid) {
             return new Promise((resolve, reject) => {
                   const header = new HttpHeaders();
-                  this._http.delete(`${this._constant.BASE}/${this._storage.getByID("userid")}/category/${categoryid}`
+                  this._http.delete(`${this._constant.BASE}/user/${this._storage.getByID("userid")}/category/${categoryid}`
                         , { headers: this.getToken() }
                   ).toPromise().then((respond: any) => {
                         this._logger.info(respond)

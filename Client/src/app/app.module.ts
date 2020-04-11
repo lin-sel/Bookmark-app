@@ -6,7 +6,7 @@ import { AppComponent } from './app.component';
 import { LoginComponent } from './component/login/login.component';
 import { RegisterComponent } from './component/register/register.component';
 import { PageNotFoundComponent } from './component/page-not-found/page-not-found.component';
-import { ReactiveFormsModule } from '@angular/forms'
+import { ReactiveFormsModule, FormsModule } from '@angular/forms'
 import { HttpClientModule } from '@angular/common/http'
 import { Constant } from './service/constant';
 import { HomeComponent } from './component/home/home.component';
@@ -17,6 +17,8 @@ import { CategoryComponent } from './component/category/category.component';
 import { EditbookmarkComponent } from './component/editbookmark/editbookmark.component';
 import { AddbookmarkComponent } from './component/addbookmark/addbookmark.component';
 import { ProfileComponent } from './component/profile/profile.component';
+import { AdmindashboardComponent } from './component/admindashboard/admindashboard.component';
+import { SortBookmarkByCategoryPipe } from './pipe/sort-bookmark-by-category.pipe';
 
 
 @NgModule({
@@ -32,13 +34,16 @@ import { ProfileComponent } from './component/profile/profile.component';
             CategoryComponent,
             EditbookmarkComponent,
             AddbookmarkComponent,
-            ProfileComponent
+            ProfileComponent,
+            AdmindashboardComponent,
+            SortBookmarkByCategoryPipe
       ],
       imports: [
             BrowserModule,
             AppRoutingModule,
             ReactiveFormsModule,
-            HttpClientModule
+            HttpClientModule,
+            FormsModule
       ],
       providers: [
             Constant,

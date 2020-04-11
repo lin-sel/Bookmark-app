@@ -10,7 +10,7 @@ import { Constant } from '../constant';
 })
 export class BookmarkService {
 
-      private categorywithbookmark: any[];
+      private bookmarklist: any[];
       constructor(
             private _logger: LoggerService,
             private _http: HttpClient,
@@ -18,27 +18,27 @@ export class BookmarkService {
             private _storage: StorageService,
             private _constant: Constant
       ) {
-            this.categorywithbookmark = [];
+            this.bookmarklist = [];
       }
 
 
-      getAll(check: boolean) {
+      getAll(check: boolean, pagesize: number, pagenumber: number) {
             return new Promise((resolve, reject) => {
-                  if (!check || this.categorywithbookmark.length == 0) {
-                        this._http.get(`${this._constant.BASE}/${this._storage.getByID("userid")}/category`,
-                              { headers: this.getToken() },
-                        ).toPromise().then((respond: any) => {
-                              this._logger.info(respond)
-                              this.categorywithbookmark = respond;
-                              resolve(this.categorywithbookmark);
-                              console.log(respond);
-                        }).catch(err => {
-                              this._logger.error(err)
-                              reject(err)
-                        });
-                        return;
-                  }
-                  resolve(this.categorywithbookmark);
+                  this._http.get(`${this._constant.BASE}/user/${this._storage.getByID("userid")}/bookmark/${pagesize}/${pagenumber}`,
+                        { headers: this.getToken() },
+                  ).toPromise().then((respond: any) => {
+                        this._logger.info(respond)
+                        if (pagenumber == 1) {
+                              this.bookmarklist = respond.listofbookmark;
+                        } else {
+                              this.bookmarklist.push(respond.listofbookmark);
+                        }
+                        this._logger.info(this.bookmarklist)
+                        resolve(respond);
+                  }).catch(err => {
+                        this._logger.error(err)
+                        reject(err)
+                  });
             })
       }
 
@@ -46,7 +46,7 @@ export class BookmarkService {
       update(data) {
             return new Promise((resolve, reject) => {
                   const headers = new HttpHeaders();
-                  this._http.put(`${this._constant.BASE}/${this._storage.getByID("userid")}/bookmark/${data.id}`, data,
+                  this._http.put(`${this._constant.BASE}/user/${this._storage.getByID("userid")}/bookmark/${data.id}`, data,
                         { headers: this.getToken() },
                   ).toPromise().then((respond: any) => {
                         this._logger.info(respond)
@@ -59,36 +59,57 @@ export class BookmarkService {
             })
       }
 
-      getByID(id: string) {
-            console.log(this.categorywithbookmark.length)
-            for (let index = 0; index < this.categorywithbookmark.length; index++) {
-                  for (let i = 0; i < this.categorywithbookmark[index].bookmarks.length; i++) {
-                        if (this.categorywithbookmark[index].bookmarks[i].id == id) {
-                              return this.categorywithbookmark[index].bookmarks[i];
+      getBookmarkByCategoryID(id, pagesize, pagenumber) {
+            return new Promise((resolve, reject) => {
+                  this._http.get(`${this._constant.BASE}/user/${this._storage.getByID("userid")}/bookmark/category/${id}/${pagesize}/${pagenumber}`,
+                        { headers: this.getToken() },
+                  ).toPromise().then((respond: any) => {
+                        this._logger.info(respond)
+                        if (pagenumber == 1) {
+                              this.bookmarklist = respond.listofbookmark;
+                        } else {
+                              this.bookmarklist.push(respond.listofbookmark);
                         }
+                        this._logger.info(this.bookmarklist)
+                        resolve(respond);
+                  }).catch(err => {
+                        this._logger.error(err)
+                        reject(err)
+                  });
+            })
+      }
+
+      getByID(id: string) {
+            console.log(this.bookmarklist.length)
+            for (let index = 0; index < this.bookmarklist.length; index++) {
+                  // for (let i = 0; i < this.bookmarklist[index].bookmarks.length; i++) {
+                  if (this.bookmarklist[index].id == id) {
+                        return this.bookmarklist[index];
                   }
+                  // }
             }
             return undefined;
       }
 
-      updateByID(bookmark: any) {
-            for (let index = 0; index < this.categorywithbookmark.length; index++) {
-                  for (let i = 0; i < this.categorywithbookmark[index].bookmarks.length; i++) {
-                        if (this.categorywithbookmark[index].bookmarks[i].id == bookmark.id) {
-                              this.categorywithbookmark[index].bookmarks[i] = bookmark;
-                        }
+      updateByID(id: string) {
+            console.log(this.bookmarklist.length)
+            for (let index = 0; index < this.bookmarklist.length; index++) {
+                  // for (let i = 0; i < this.bookmarklist[index].bookmarks.length; i++) {
+                  if (this.bookmarklist[index].id == id) {
+                        return this.bookmarklist[index];
                   }
+                  // }
             }
+            return undefined;
       }
 
       addBookmark(data) {
             return new Promise((resolve, reject) => {
                   const headers = new HttpHeaders();
-                  this._http.post(`${this._constant.BASE}/${this._storage.getByID("userid")}/bookmark`, data
+                  this._http.post(`${this._constant.BASE}/user/${this._storage.getByID("userid")}/bookmark`, data
                         , { headers: this.getToken() },
                   ).toPromise().then((respond: any) => {
                         this._logger.info(respond)
-                        this.getAll(false);
                         resolve(respond)
                   }).catch(err => {
                         this._logger.error(err)
@@ -100,11 +121,10 @@ export class BookmarkService {
       deleteBookmark(bookmarkid) {
             return new Promise((resolve, reject) => {
                   const headers = new HttpHeaders();
-                  this._http.delete(`${this._constant.BASE}/${this._storage.getByID("userid")}/bookmark/${bookmarkid}`
+                  this._http.delete(`${this._constant.BASE}/user/${this._storage.getByID("userid")}/bookmark/${bookmarkid}`
                         , { headers: this.getToken() },
                   ).toPromise().then((respond: any) => {
                         this._logger.info(respond)
-                        this.getAll(false);
                         resolve(respond)
                   }).catch(err => {
                         this._logger.error(err)

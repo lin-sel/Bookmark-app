@@ -1,9 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Form, FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { LoginService } from 'src/app/service/login/login.service';
 import { LoggerService } from 'src/app/service/utils/logger.service';
-import { JsonService } from 'src/app/service/utils/json.service';
 import { MainService } from 'src/app/service/main.service';
 import { UtilService } from 'src/app/service/utils/util.service';
 
@@ -16,6 +13,7 @@ export class LoginComponent implements OnInit {
 
       public login: FormGroup
       public loader: string = 'loader'
+      public isadmin: boolean = false
       constructor(
             private formbuilder: FormBuilder,
             private util: UtilService,
@@ -45,11 +43,24 @@ export class LoginComponent implements OnInit {
       // Login to App.
       appLogin() {
             this.configLoader()
-            console.log(this.login.value);
-            this.mainservice.appLogin(this.login.value).then(() => {
+            if (!this.isadmin) {
+                  this.mainservice.userLogin(this.login.value).then(() => {
+                        this.logger.log("Login done")
+                        alert("Login Done")
+                        this.navigate("bookmark")
+                  }).catch(err => {
+                        let error = this.errorParser(err);
+                        alert(error);
+                        console.log(error)
+                  }).finally(() => {
+                        this.configLoader();
+                  });
+                  return
+            }
+            this.mainservice.adminLogin(this.login.value).then(() => {
                   this.logger.log("Login done")
                   alert("Login Done")
-                  this.navigate("bookmark")
+                  this.navigate("admindashboard")
             }).catch(err => {
                   let error = this.errorParser(err);
                   alert(error);

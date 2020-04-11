@@ -1,7 +1,9 @@
-<div [class]="loader">
+<div [class]="loader.loader">
       <div class="spinner-grow text-primary"></div>
 </div>
-<div [class]="body">
+<div [class]="loader.body">
+      <app-navbar></app-navbar>
+      <div class="location">{{util.getLocation()}}</div>
       <div class="root">
             <div class="sub-div">
                   <h3>Update Bookmark</h3>
