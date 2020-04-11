@@ -76,7 +76,7 @@ func (bm *BookmarkService) GetBookmark(uid, bid uuid.UUID, bookmark *[]models.Bo
 }
 
 // GetAllBookmark From database
-func (bm *BookmarkService) GetAllBookmark(uid uuid.UUID, bookmark *[]models.Bookmark) error {
+func (bm *BookmarkService) GetAllBookmark(uid uuid.UUID, bookmark *models.BookmarkResponse) error {
 	uow := repository.NewUnitOfWork(bm.DB, true)
 	err := bm.Repository.GetAll(uow, uid, bookmark, []string{})
 	if err != nil {
@@ -88,9 +88,21 @@ func (bm *BookmarkService) GetAllBookmark(uid uuid.UUID, bookmark *[]models.Book
 }
 
 // GetBookmarkByCategory From database
-func (bm *BookmarkService) GetBookmarkByCategory(cid uuid.UUID, bookmark *[]models.Bookmark) error {
+func (bm *BookmarkService) GetBookmarkByCategory(cid uuid.UUID, response *models.BookmarkResponse) error {
 	uow := repository.NewUnitOfWork(bm.DB, true)
-	err := bm.Repository.GetByField(uow, cid, "category_id", bookmark, []string{})
+	err := bm.Repository.GetByField(uow, cid, "category_id", response, []string{})
+	if err != nil {
+		uow.Complete()
+		return err
+	}
+	// uow.Commit()
+	return err
+}
+
+// GetTotalCount Return Total Data set count.
+func (bm *BookmarkService) GetTotalCount(bookmark *models.Bookmark, count *int64, fieldname string, fieldvalue interface{}) error {
+	uow := repository.NewUnitOfWork(bm.DB, true)
+	err := bm.Repository.GetTotalCount(uow, bookmark.GetUserID(), bookmark, count, fieldname, fieldvalue)
 	if err != nil {
 		uow.Complete()
 		return err
